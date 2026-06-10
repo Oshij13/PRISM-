@@ -1,0 +1,459 @@
+{
+  "version": 1,
+  "startData": {},
+  "resultData": {
+    "runData": {
+      "When Executed by Another Workflow": [
+        {
+          "startTime": 1780578827999,
+          "executionIndex": 0,
+          "source": [],
+          "hints": [],
+          "executionTime": 0,
+          "metadata": {
+            "parentExecution": {
+              "executionId": "176",
+              "workflowId": "MDJmNwCRbwcLvNjd",
+              "shouldResume": true,
+              "executionContext": {
+                "version": 1,
+                "establishedAt": 1780578802629,
+                "source": "webhook",
+                "redaction": {
+                  "version": 1,
+                  "policy": "none"
+                },
+                "triggerNode": {
+                  "name": "Webhook",
+                  "type": "n8n-nodes-base.webhook"
+                }
+              }
+            }
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "company": "{{ $json.body.companyName }}",
+                    "person_name": "{{ $json.body.personName }}",
+                    "role_title": "{{ $json.body.personTitle }}",
+                    "meeting_type": "{{ $json.body.meetingType }}",
+                    "meeting_goal": "{{ $json.body.meetingGoal }}",
+                    "attendee_name": null,
+                    "priority": "{{ $json.body.priority }}",
+                    "company_research": {
+                      "company": "Unknown - company name not provided",
+                      "company_overview": "No specific company name was provided in the request. Please provide the company name or domain to enable accurate business research.",
+                      "products_services": [],
+                      "business_model": "Unknown because the company was not specified.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [
+                        "Unable to assess company-specific pain points without a company name or website."
+                      ],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Please share the target company name, website, or ticker symbol so the research can be completed accurately."
+                      ],
+                      "questions_to_ask": [
+                        "Which company should be researched?",
+                        "Do you have a company website, LinkedIn page, or ticker symbol to disambiguate the organization?",
+                        "Is this research intended for a specific sales motion, product line, or region?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "No company name was provided in the user request.",
+                          "source": "User request",
+                          "source_url": "",
+                          "confidence": "High"
+                        }
+                      ]
+                    },
+                    "news_intelligence": {
+                      "company": "undefined",
+                      "major_developments": [
+                        {
+                          "title": "Insufficient news coverage available",
+                          "summary": "No NewsAPI articles were provided that are directly relevant to 'undefined'. Because fewer than three directly relevant articles exist (in fact none), we cannot identify verifiable recent developments from news sources.",
+                          "source": "Input dataset",
+                          "source_url": "Not available",
+                          "date": "Not available",
+                          "sales_relevance": "Cannot assess \u2014 no article data to evaluate potential impacts on sales."
+                        }
+                      ],
+                      "positive_signals": [],
+                      "risk_signals": [],
+                      "business_priorities": [
+                        "(Inferred \u2014 no source) Confirm current strategic priorities and Q-to-date performance to understand immediate needs.",
+                        "(Inferred \u2014 no source) Validate any upcoming product launches, pricing changes, or procurement cycles that would affect buying timelines."
+                      ],
+                      "talking_points": [
+                        "(Inferred \u2014 no source) We have limited public news on your organization; before exploring solutions, can you update us on any recent initiatives or challenges you\u2019re prioritizing?",
+                        "(Inferred \u2014 no source) Given lack of external coverage, emphasize our ability to provide confidentiality, proactive intelligence, and a single point of contact to surface hidden needs."
+                      ],
+                      "questions_to_ask": [
+                        "What recent internal developments or initiatives should we be aware of that may not be public yet? (Inferred \u2014 no source)",
+                        "Are there upcoming budget cycles, RFPs, or procurement timelines we should align with? (Inferred \u2014 no source)",
+                        "Who are the primary stakeholders and decision-makers for projects related to our solutions? (Inferred \u2014 no source)"
+                      ],
+                      "sources": [
+                        {
+                          "title": "No relevant articles provided",
+                          "url": "Not available",
+                          "publisher": "NewsAPI input",
+                          "date": "Not available"
+                        }
+                      ]
+                    }
+                  },
+                  "index": 0,
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "OpenAI Chat Model": [
+        {
+          "startTime": 1780578828012,
+          "executionTime": 23311,
+          "executionIndex": 2,
+          "executionStatus": "success",
+          "source": [
+            {
+              "previousNode": "AI Agent",
+              "previousNodeRun": 0
+            }
+          ],
+          "data": {
+            "ai_languageModel": [
+              [
+                {
+                  "json": {
+                    "response": {
+                      "generations": [
+                        [
+                          {
+                            "text": ""
+                          }
+                        ]
+                      ]
+                    },
+                    "tokenUsageEstimate": {
+                      "completionTokens": 0,
+                      "promptTokens": 1001,
+                      "totalTokens": 1001
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "inputOverride": {
+            "ai_languageModel": [
+              [
+                {
+                  "json": {
+                    "messages": [
+                      "System: You are the PRISM Stakeholder Brief Agent.\n\nYour job is to create a concise, sales-relevant brief about the meeting stakeholder.\n\nUse the person's name, role/title, company, meeting type, meeting goal, company research, and news intelligence.\n\nDo not invent personal facts, employment history, education, achievements, opinions, or interests.\n\nIf verified personal details are not provided, clearly base insights on the person's role, company context, and meeting goal.\n\nFocus on what the sales rep should understand before the meeting:\n- what this stakeholder likely cares about professionally\n- how to personalize the conversation\n- what objections they may raise\n- what questions the rep should ask\n- how to communicate effectively\n\nIMPORTANT: For your response to user, you MUST use the `format_final_json_response` tool with your complete answer formatted according to the required schema. Do not attempt to format the JSON manually - always use this tool. Your response will be rejected if it is not properly formatted through this tool. Only use this tool once you are ready to provide your final answer.\nHuman: Create a stakeholder brief for this meeting.\n\nPerson Name: {{ $json.body.personName }}\nRole/Title: {{ $json.body.personTitle }}\nCompany: {{ $json.body.companyName }}\nMeeting Type: {{ $json.body.meetingType }}\nMeeting Goal: {{ $json.body.meetingGoal }}\nPriority: {{ $json.body.priority }}\n\nCompany Research:\n{\n  \"company\": \"Unknown - company name not provided\",\n  \"company_overview\": \"No specific company name was provided in the request. Please provide the company name or domain to enable accurate business research.\",\n  \"products_services\": [],\n  \"business_model\": \"Unknown because the company was not specified.\",\n  \"target_customers\": [],\n  \"competitive_positioning\": [],\n  \"pain_points\": [\n    \"Unable to assess company-specific pain points without a company name or website.\"\n  ],\n  \"growth_opportunities\": [],\n  \"talking_points\": [\n    \"Please share the target company name, website, or ticker symbol so the research can be completed accurately.\"\n  ],\n  \"questions_to_ask\": [\n    \"Which company should be researched?\",\n    \"Do you have a company website, LinkedIn page, or ticker symbol to disambiguate the organization?\",\n    \"Is this research intended for a specific sales motion, product line, or region?\"\n  ],\n  \"sources\": [\n    {\n      \"claim\": \"No company name was provided in the user request.\",\n      \"source\": \"User request\",\n      \"source_url\": \"\",\n      \"confidence\": \"High\"\n    }\n  ]\n}\n\nNews Intelligence:\n{\n  \"company\": \"undefined\",\n  \"major_developments\": [\n    {\n      \"title\": \"Insufficient news coverage available\",\n      \"summary\": \"No NewsAPI articles were provided that are directly relevant to 'undefined'. Because fewer than three directly relevant articles exist (in fact none), we cannot identify verifiable recent developments from news sources.\",\n      \"source\": \"Input dataset\",\n      \"source_url\": \"Not available\",\n      \"date\": \"Not available\",\n      \"sales_relevance\": \"Cannot assess \u2014 no article data to evaluate potential impacts on sales.\"\n    }\n  ],\n  \"positive_signals\": [],\n  \"risk_signals\": [],\n  \"business_priorities\": [\n    \"(Inferred \u2014 no source) Confirm current strategic priorities and Q-to-date performance to understand immediate needs.\",\n    \"(Inferred \u2014 no source) Validate any upcoming product launches, pricing changes, or procurement cycles that would affect buying timelines.\"\n  ],\n  \"talking_points\": [\n    \"(Inferred \u2014 no source) We have limited public news on your organization; before exploring solutions, can you update us on any recent initiatives or challenges you\u2019re prioritizing?\",\n    \"(Inferred \u2014 no source) Given lack of external coverage, emphasize our ability to provide confidentiality, proactive intelligence, and a single point of contact to surface hidden needs.\"\n  ],\n  \"questions_to_ask\": [\n    \"What recent internal developments or initiatives should we be aware of that may not be public yet? (Inferred \u2014 no source)\",\n    \"Are there upcoming budget cycles, RFPs, or procurement timelines we should align with? (Inferred \u2014 no source)\",\n    \"Who are the primary stakeholders and decision-makers for projects related to our solutions? (Inferred \u2014 no source)\"\n  ],\n  \"sources\": [\n    {\n      \"title\": \"No relevant articles provided\",\n      \"url\": \"Not available\",\n      \"publisher\": \"NewsAPI input\",\n      \"date\": \"Not available\"\n    }\n  ]\n}\n\nInstructions:\n- Keep it concise and useful for a sales rep.\n- Separate verified facts from inferred insights.\n- If personal details are not available, say so clearly.\n- Do not hallucinate biography details.\n- Make questions and talking points specific to the stakeholder's role and meeting goal."
+                    ],
+                    "estimatedTokens": 1001,
+                    "options": {
+                      "openai_api_key": {
+                        "lc": 1,
+                        "type": "secret",
+                        "id": [
+                          "OPENAI_API_KEY"
+                        ]
+                      },
+                      "model": "gpt-5-mini",
+                      "max_retries": 2,
+                      "configuration": {
+                        "defaultHeaders": {
+                          "openai-platform": "org-qkmJQuJ2WnvoIKMr2UJwIJkZ"
+                        },
+                        "baseURL": "https://api.openai.com/v1",
+                        "fetchOptions": {
+                          "dispatcher": {
+                            "_events": {},
+                            "_eventsCount": 0
+                          }
+                        }
+                      },
+                      "model_kwargs": {},
+                      "supports_strict_tool_calling": false,
+                      "use_responses_api": true
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "metadata": {
+            "subRun": [
+              {
+                "node": "OpenAI Chat Model",
+                "runIndex": 0
+              }
+            ]
+          }
+        }
+      ],
+      "Structured Output Parser": [
+        {
+          "startTime": 1780578851324,
+          "executionTime": 1,
+          "executionIndex": 3,
+          "executionStatus": "success",
+          "source": [
+            {
+              "previousNode": "AI Agent",
+              "previousNodeRun": 0
+            }
+          ],
+          "data": {
+            "ai_outputParser": [
+              [
+                {
+                  "json": {
+                    "action": "parse",
+                    "response": {
+                      "output": {
+                        "stakeholder_summary": "Verified facts:\n- Name: {{ $json.body.personName }}\n- Role/Title: {{ $json.body.personTitle }}\n- Company: {{ $json.body.companyName }}\n- Meeting type: {{ $json.body.meetingType }}\n- Meeting goal: {{ $json.body.meetingGoal }}\n- Priority: {{ $json.body.priority }}\n\nVerified company research & news:\n- No company name or reliable public company data was provided; external company research and recent news intelligence are not available.\n\nInferred insights (role- and goal-based):\n- Because the stakeholder\u2019s title is {{ $json.body.personTitle }}, they will likely evaluate proposals based on impact to the areas typically owned by that role (see \"current_role_context\").\n- With the stated meeting goal ({{ $json.body.meetingGoal }}), expect the stakeholder to want clarity on business outcomes, timelines, costs, and success metrics rather than high-level vendor marketing.",
+                        "current_role_context": "Based only on the provided title ({{ $json.body.personTitle }}):\n- Likely responsible for driving decisions in functional areas associated with that title (e.g., budgeting, vendor selection, team outcomes, KPI delivery).\n- Focus will be on measurable impact (cost savings, revenue uplift, efficiency gains, risk reduction) and on how a solution fits existing processes and technology.\n- Will prefer conversations that map proposed capabilities to concrete business metrics and implementation timelines.",
+                        "verified_personal_details_available": "No. Only the stakeholder's name, role/title, and company label (as provided above) are available. No verified personal biography, employment history, education, achievements, or interests were supplied.",
+                        "likely_priorities": [
+                          "Aligning any proposed solution to the stakeholder\u2019s functional KPIs (productivity, revenue, cost, time-to-market depending on role)",
+                          "Minimizing disruption to current operations and reducing implementation risk",
+                          "Clear ROI and an accountable timeline for delivery and measurement",
+                          "Budget predictability and procurement alignment with upcoming cycles",
+                          "Gaining buy-in from other internal stakeholders and decision-makers"
+                        ],
+                        "likely_business_concerns": [
+                          "Unclear ROI or weak business case for change",
+                          "Implementation complexity and integration with existing systems",
+                          "Budget constraints or misalignment with procurement timelines",
+                          "Preference for incumbent vendors or internal solutions",
+                          "Insufficient internal resources to support a pilot or rollout"
+                        ],
+                        "communication_style_recommendations": [
+                          "Be concise and structured \u2014 open with meeting outcomes and desired decisions",
+                          "Bring two to three data-driven outcomes or case comparisons that map to the stakeholder's KPIs",
+                          "Use clear timelines and single-page summaries (one-pager or slide) to explain next steps",
+                          "Anticipate technical or procurement questions; have ROI/back-of-envelope cost models available"
+                        ],
+                        "personalization_angles": [
+                          "Map capabilities directly to the stakeholder\u2019s functional responsibilities (use their job title as the anchor)",
+                          "Reference the meeting goal ({{ $json.body.meetingGoal }}) early and confirm it \u2014 tailor value props to that goal",
+                          "If company context is unknown, ask early in the meeting for recent initiatives, current priorities, and any internal constraints to make the conversation relevant",
+                          "Offer a low-friction next step (pilot, workshop, or a short discovery session) that reduces perceived risk"
+                        ],
+                        "possible_objections": [
+                          "\"We don\u2019t have budget this quarter\" \u2014 ask about timing and alternative procurement windows",
+                          "\"We already use a vendor/solution for this\" \u2014 be ready to differentiate on outcomes and TCO",
+                          "\"Integration will be too complex\" \u2014 provide integration patterns, references, and typical timelines",
+                          "\"We need internal stakeholder buy-in\" \u2014 identify decision-makers and propose a joint session or brief for approvers",
+                          "\"We don\u2019t see measurable ROI\" \u2014 show concrete metrics, benchmarks, and proposed measurement plan"
+                        ],
+                        "stakeholder_specific_questions": [
+                          "Confirm objective: \u201cTo make sure I\u2019ve prepared correctly, is your primary goal for this meeting to {{ $json.body.meetingGoal }}?\u201d",
+                          "KPIs: \u201cWhich 1\u20133 KPIs will define success for this initiative?\u201d",
+                          "Timeline & budget: \u201cWhat is your target timeline and is there an allocated budget or approval window we should align to?\u201d",
+                          "Decision process: \u201cWho else needs to sign off and what criteria do they use?\u201d",
+                          "Current solutions: \u201cWhat are you using today to address this problem and what gaps remain?\u201d",
+                          "Constraints: \u201cAre there technical, regulatory, or procurement constraints we should know about?\u201d",
+                          "Pilot appetite: \u201cWould a short pilot or proof-of-value be acceptable to validate outcomes?\u201d",
+                          "Measure & reporting: \u201cHow do you prefer progress to be reported and who will consume those reports?\u201d"
+                        ],
+                        "recommended_approach": "Before the meeting: send a 1-page agenda that states the meeting goal ({{ $json.body.meetingGoal }}), proposed duration, and desired decisions. Start the meeting by confirming the goal and the stakeholder\u2019s top KPI(s). Use a short, data-focused pitch (3 slides or a one-pager): problem, proposed approach, expected business outcomes, and next steps (pilot or decision). Be prepared with: an ROI/back-of-envelope model, a concise integration summary, and references for similar outcomes. Confirm timeline and decision owners, agree on a small next step (pilot or executive brief), and schedule a follow-up that maps milestones to the stakeholder\u2019s KPIs. Note: Because external company and news data were not provided, open the meeting by asking for recent internal initiatives or constraints to tailor the conversation immediately."
+                      }
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "inputOverride": {
+            "ai_outputParser": [
+              [
+                {
+                  "json": {
+                    "action": "parse",
+                    "text": "{\"output\":{\"stakeholder_summary\":\"Verified facts:\\n- Name: {{ $json.body.personName }}\\n- Role/Title: {{ $json.body.personTitle }}\\n- Company: {{ $json.body.companyName }}\\n- Meeting type: {{ $json.body.meetingType }}\\n- Meeting goal: {{ $json.body.meetingGoal }}\\n- Priority: {{ $json.body.priority }}\\n\\nVerified company research & news:\\n- No company name or reliable public company data was provided; external company research and recent news intelligence are not available.\\n\\nInferred insights (role- and goal-based):\\n- Because the stakeholder\u2019s title is {{ $json.body.personTitle }}, they will likely evaluate proposals based on impact to the areas typically owned by that role (see \\\"current_role_context\\\").\\n- With the stated meeting goal ({{ $json.body.meetingGoal }}), expect the stakeholder to want clarity on business outcomes, timelines, costs, and success metrics rather than high-level vendor marketing.\",\"current_role_context\":\"Based only on the provided title ({{ $json.body.personTitle }}):\\n- Likely responsible for driving decisions in functional areas associated with that title (e.g., budgeting, vendor selection, team outcomes, KPI delivery).\\n- Focus will be on measurable impact (cost savings, revenue uplift, efficiency gains, risk reduction) and on how a solution fits existing processes and technology.\\n- Will prefer conversations that map proposed capabilities to concrete business metrics and implementation timelines.\",\"verified_personal_details_available\":\"No. Only the stakeholder's name, role/title, and company label (as provided above) are available. No verified personal biography, employment history, education, achievements, or interests were supplied.\",\"likely_priorities\":[\"Aligning any proposed solution to the stakeholder\u2019s functional KPIs (productivity, revenue, cost, time-to-market depending on role)\",\"Minimizing disruption to current operations and reducing implementation risk\",\"Clear ROI and an accountable timeline for delivery and measurement\",\"Budget predictability and procurement alignment with upcoming cycles\",\"Gaining buy-in from other internal stakeholders and decision-makers\"],\"likely_business_concerns\":[\"Unclear ROI or weak business case for change\",\"Implementation complexity and integration with existing systems\",\"Budget constraints or misalignment with procurement timelines\",\"Preference for incumbent vendors or internal solutions\",\"Insufficient internal resources to support a pilot or rollout\"],\"communication_style_recommendations\":[\"Be concise and structured \u2014 open with meeting outcomes and desired decisions\",\"Bring two to three data-driven outcomes or case comparisons that map to the stakeholder's KPIs\",\"Use clear timelines and single-page summaries (one-pager or slide) to explain next steps\",\"Anticipate technical or procurement questions; have ROI/back-of-envelope cost models available\"],\"personalization_angles\":[\"Map capabilities directly to the stakeholder\u2019s functional responsibilities (use their job title as the anchor)\",\"Reference the meeting goal ({{ $json.body.meetingGoal }}) early and confirm it \u2014 tailor value props to that goal\",\"If company context is unknown, ask early in the meeting for recent initiatives, current priorities, and any internal constraints to make the conversation relevant\",\"Offer a low-friction next step (pilot, workshop, or a short discovery session) that reduces perceived risk\"],\"possible_objections\":[\"\\\"We don\u2019t have budget this quarter\\\" \u2014 ask about timing and alternative procurement windows\",\"\\\"We already use a vendor/solution for this\\\" \u2014 be ready to differentiate on outcomes and TCO\",\"\\\"Integration will be too complex\\\" \u2014 provide integration patterns, references, and typical timelines\",\"\\\"We need internal stakeholder buy-in\\\" \u2014 identify decision-makers and propose a joint session or brief for approvers\",\"\\\"We don\u2019t see measurable ROI\\\" \u2014 show concrete metrics, benchmarks, and proposed measurement plan\"],\"stakeholder_specific_questions\":[\"Confirm objective: \u201cTo make sure I\u2019ve prepared correctly, is your primary goal for this meeting to {{ $json.body.meetingGoal }}?\u201d\",\"KPIs: \u201cWhich 1\u20133 KPIs will define success for this initiative?\u201d\",\"Timeline & budget: \u201cWhat is your target timeline and is there an allocated budget or approval window we should align to?\u201d\",\"Decision process: \u201cWho else needs to sign off and what criteria do they use?\u201d\",\"Current solutions: \u201cWhat are you using today to address this problem and what gaps remain?\u201d\",\"Constraints: \u201cAre there technical, regulatory, or procurement constraints we should know about?\u201d\",\"Pilot appetite: \u201cWould a short pilot or proof-of-value be acceptable to validate outcomes?\u201d\",\"Measure & reporting: \u201cHow do you prefer progress to be reported and who will consume those reports?\u201d\"],\"recommended_approach\":\"Before the meeting: send a 1-page agenda that states the meeting goal ({{ $json.body.meetingGoal }}), proposed duration, and desired decisions. Start the meeting by confirming the goal and the stakeholder\u2019s top KPI(s). Use a short, data-focused pitch (3 slides or a one-pager): problem, proposed approach, expected business outcomes, and next steps (pilot or decision). Be prepared with: an ROI/back-of-envelope model, a concise integration summary, and references for similar outcomes. Confirm timeline and decision owners, agree on a small next step (pilot or executive brief), and schedule a follow-up that maps milestones to the stakeholder\u2019s KPIs. Note: Because external company and news data were not provided, open the meeting by asking for recent internal initiatives or constraints to tailor the conversation immediately.\"}}"
+                  }
+                }
+              ]
+            ]
+          },
+          "metadata": {
+            "subRun": [
+              {
+                "node": "Structured Output Parser",
+                "runIndex": 0
+              }
+            ]
+          }
+        }
+      ],
+      "AI Agent": [
+        {
+          "startTime": 1780578828000,
+          "executionIndex": 1,
+          "source": [
+            {
+              "previousNode": "When Executed by Another Workflow",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 23327,
+          "metadata": {
+            "tracing": {
+              "ai.agent.version": "v3",
+              "ai.agent.streaming.enabled": true,
+              "ai.agent.items.total": 1,
+              "ai.agent.items.failed": 0,
+              "ai.agent.tool_calls.requested": 0,
+              "ai.agent.tool_calls.completed": 0,
+              "ai.agent.iteration.count": 0,
+              "ai.agent.memory.loads": 0,
+              "ai.agent.memory.saves": 0,
+              "ai.agent.execution.succeeded": true
+            }
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "stakeholder_summary": "Verified facts:\n- Name: {{ $json.body.personName }}\n- Role/Title: {{ $json.body.personTitle }}\n- Company: {{ $json.body.companyName }}\n- Meeting type: {{ $json.body.meetingType }}\n- Meeting goal: {{ $json.body.meetingGoal }}\n- Priority: {{ $json.body.priority }}\n\nVerified company research & news:\n- No company name or reliable public company data was provided; external company research and recent news intelligence are not available.\n\nInferred insights (role- and goal-based):\n- Because the stakeholder\u2019s title is {{ $json.body.personTitle }}, they will likely evaluate proposals based on impact to the areas typically owned by that role (see \"current_role_context\").\n- With the stated meeting goal ({{ $json.body.meetingGoal }}), expect the stakeholder to want clarity on business outcomes, timelines, costs, and success metrics rather than high-level vendor marketing.",
+                      "current_role_context": "Based only on the provided title ({{ $json.body.personTitle }}):\n- Likely responsible for driving decisions in functional areas associated with that title (e.g., budgeting, vendor selection, team outcomes, KPI delivery).\n- Focus will be on measurable impact (cost savings, revenue uplift, efficiency gains, risk reduction) and on how a solution fits existing processes and technology.\n- Will prefer conversations that map proposed capabilities to concrete business metrics and implementation timelines.",
+                      "verified_personal_details_available": "No. Only the stakeholder's name, role/title, and company label (as provided above) are available. No verified personal biography, employment history, education, achievements, or interests were supplied.",
+                      "likely_priorities": [
+                        "Aligning any proposed solution to the stakeholder\u2019s functional KPIs (productivity, revenue, cost, time-to-market depending on role)",
+                        "Minimizing disruption to current operations and reducing implementation risk",
+                        "Clear ROI and an accountable timeline for delivery and measurement",
+                        "Budget predictability and procurement alignment with upcoming cycles",
+                        "Gaining buy-in from other internal stakeholders and decision-makers"
+                      ],
+                      "likely_business_concerns": [
+                        "Unclear ROI or weak business case for change",
+                        "Implementation complexity and integration with existing systems",
+                        "Budget constraints or misalignment with procurement timelines",
+                        "Preference for incumbent vendors or internal solutions",
+                        "Insufficient internal resources to support a pilot or rollout"
+                      ],
+                      "communication_style_recommendations": [
+                        "Be concise and structured \u2014 open with meeting outcomes and desired decisions",
+                        "Bring two to three data-driven outcomes or case comparisons that map to the stakeholder's KPIs",
+                        "Use clear timelines and single-page summaries (one-pager or slide) to explain next steps",
+                        "Anticipate technical or procurement questions; have ROI/back-of-envelope cost models available"
+                      ],
+                      "personalization_angles": [
+                        "Map capabilities directly to the stakeholder\u2019s functional responsibilities (use their job title as the anchor)",
+                        "Reference the meeting goal ({{ $json.body.meetingGoal }}) early and confirm it \u2014 tailor value props to that goal",
+                        "If company context is unknown, ask early in the meeting for recent initiatives, current priorities, and any internal constraints to make the conversation relevant",
+                        "Offer a low-friction next step (pilot, workshop, or a short discovery session) that reduces perceived risk"
+                      ],
+                      "possible_objections": [
+                        "\"We don\u2019t have budget this quarter\" \u2014 ask about timing and alternative procurement windows",
+                        "\"We already use a vendor/solution for this\" \u2014 be ready to differentiate on outcomes and TCO",
+                        "\"Integration will be too complex\" \u2014 provide integration patterns, references, and typical timelines",
+                        "\"We need internal stakeholder buy-in\" \u2014 identify decision-makers and propose a joint session or brief for approvers",
+                        "\"We don\u2019t see measurable ROI\" \u2014 show concrete metrics, benchmarks, and proposed measurement plan"
+                      ],
+                      "stakeholder_specific_questions": [
+                        "Confirm objective: \u201cTo make sure I\u2019ve prepared correctly, is your primary goal for this meeting to {{ $json.body.meetingGoal }}?\u201d",
+                        "KPIs: \u201cWhich 1\u20133 KPIs will define success for this initiative?\u201d",
+                        "Timeline & budget: \u201cWhat is your target timeline and is there an allocated budget or approval window we should align to?\u201d",
+                        "Decision process: \u201cWho else needs to sign off and what criteria do they use?\u201d",
+                        "Current solutions: \u201cWhat are you using today to address this problem and what gaps remain?\u201d",
+                        "Constraints: \u201cAre there technical, regulatory, or procurement constraints we should know about?\u201d",
+                        "Pilot appetite: \u201cWould a short pilot or proof-of-value be acceptable to validate outcomes?\u201d",
+                        "Measure & reporting: \u201cHow do you prefer progress to be reported and who will consume those reports?\u201d"
+                      ],
+                      "recommended_approach": "Before the meeting: send a 1-page agenda that states the meeting goal ({{ $json.body.meetingGoal }}), proposed duration, and desired decisions. Start the meeting by confirming the goal and the stakeholder\u2019s top KPI(s). Use a short, data-focused pitch (3 slides or a one-pager): problem, proposed approach, expected business outcomes, and next steps (pilot or decision). Be prepared with: an ROI/back-of-envelope model, a concise integration summary, and references for similar outcomes. Confirm timeline and decision owners, agree on a small next step (pilot or executive brief), and schedule a follow-up that maps milestones to the stakeholder\u2019s KPIs. Note: Because external company and news data were not provided, open the meeting by asking for recent internal initiatives or constraints to tailor the conversation immediately."
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "lastNodeExecuted": "AI Agent"
+  },
+  "executionData": {
+    "contextData": {},
+    "nodeExecutionStack": [],
+    "metadata": {
+      "OpenAI Chat Model": [
+        {
+          "subRun": [
+            {
+              "node": "OpenAI Chat Model",
+              "runIndex": 0
+            }
+          ]
+        }
+      ],
+      "Structured Output Parser": [
+        {
+          "subRun": [
+            {
+              "node": "Structured Output Parser",
+              "runIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    "waitingExecution": {},
+    "waitingExecutionSource": {},
+    "runtimeData": {
+      "version": 1,
+      "establishedAt": 1780578827999,
+      "source": "integrated",
+      "redaction": {
+        "version": 1,
+        "policy": "none"
+      },
+      "triggerNode": {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook"
+      },
+      "parentExecutionId": "176"
+    }
+  },
+  "parentExecution": {
+    "executionId": "176",
+    "workflowId": "MDJmNwCRbwcLvNjd",
+    "shouldResume": true,
+    "executionContext": {
+      "version": 1,
+      "establishedAt": 1780578802629,
+      "source": "webhook",
+      "redaction": {
+        "version": 1,
+        "policy": "none"
+      },
+      "triggerNode": {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook"
+      }
+    }
+  },
+  "resumeToken": "83d2ac606c1b361aff22ad821e2c74de19f363fd139c96565868fc6d8483b7ea"
+}

@@ -1,0 +1,1200 @@
+{
+  "version": 1,
+  "startData": {},
+  "resultData": {
+    "runData": {
+      "Webhook": [
+        {
+          "startTime": 1780685949989,
+          "executionIndex": 0,
+          "source": [],
+          "hints": [],
+          "executionTime": 16,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "headers": {
+                      "host": "localhost:5678",
+                      "connection": "keep-alive",
+                      "content-length": "173",
+                      "sec-ch-ua-platform": "\"Windows\"",
+                      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+                      "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+                      "content-type": "application/json",
+                      "sec-ch-ua-mobile": "?0",
+                      "accept": "*/*",
+                      "origin": "http://localhost:5173",
+                      "sec-fetch-site": "same-site",
+                      "sec-fetch-mode": "cors",
+                      "sec-fetch-dest": "empty",
+                      "referer": "http://localhost:5173/",
+                      "accept-encoding": "gzip, deflate, br, zstd",
+                      "accept-language": "en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7,pt;q=0.6"
+                    },
+                    "params": {},
+                    "query": {},
+                    "body": {
+                      "companyName": "Stripe",
+                      "personName": "Rahul Patil",
+                      "personTitle": "CTO",
+                      "meetingType": "Initial Discovery Meeting",
+                      "meetingGoal": "Initial Discovery Meeting",
+                      "priority": "high"
+                    },
+                    "webhookUrl": "http://localhost:5678/webhook-test/prism-brief",
+                    "executionMode": "test"
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Edit Fields": [
+        {
+          "startTime": 1780685950021,
+          "executionIndex": 1,
+          "source": [
+            {
+              "previousNode": "Webhook",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 320,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "company": "Stripe",
+                    "person_name": "Rahul Patil",
+                    "role_title": "CTO",
+                    "meeting_type": "Initial Discovery Meeting",
+                    "meeting_goal": "Initial Discovery Meeting",
+                    "priority": "high"
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Call 'Company Research Agent'": [
+        {
+          "startTime": 1780685950345,
+          "executionIndex": 2,
+          "source": [
+            {
+              "previousNode": "Edit Fields",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 12750,
+          "metadata": {
+            "subExecution": {
+              "executionId": "196",
+              "workflowId": "UyTTPlektuM8OAE4"
+            },
+            "subExecutionsCount": 1
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "company": "Unknown - company name not provided",
+                      "company_overview": "No company name was provided in the request. Please provide the target company name or domain so a sales-focused research brief can be prepared.",
+                      "products_services": [],
+                      "business_model": "Unknown - insufficient information provided.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Please provide the company name and, if available, website/domain, region, or business unit of interest."
+                      ],
+                      "questions_to_ask": [
+                        "Which company should be researched?",
+                        "Do you have a specific market, geography, or product line to focus on?",
+                        "Is this for a prospecting call, renewal, expansion, or executive meeting?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "The request did not include a usable company name; it contained an unresolved template variable.",
+                          "source": "User request",
+                          "source_url": "N/A",
+                          "confidence": "High"
+                        }
+                      ]
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Call 'NEWS Intelligence Agent'": [
+        {
+          "startTime": 1780685963100,
+          "executionIndex": 3,
+          "source": [
+            {
+              "previousNode": "Edit Fields",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 28963,
+          "metadata": {
+            "subExecution": {
+              "executionId": "197",
+              "workflowId": "sLLnLwnWHUBtsR6T"
+            },
+            "subExecutionsCount": 1
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "company": "undefined",
+                      "major_developments": [],
+                      "positive_signals": [],
+                      "risk_signals": [],
+                      "business_priorities": [
+                        "Available news coverage is limited: fewer than 3 directly relevant articles about 'undefined' were found in the provided dataset, so external intelligence is insufficient. Recommend obtaining clarification on the entity labeled 'undefined' and asking the prospect for recent press releases, investor updates, or internal announcements before the sales meeting."
+                      ],
+                      "talking_points": [
+                        "Alert the prospect that external public reporting about 'undefined' was not found in the provided news set \u2014 request their help to surface relevant updates so the conversation can be tailored.",
+                        "Ask the prospect to confirm what 'undefined' refers to (company, product, or initiative) and share the most important recent developments and priorities."
+                      ],
+                      "questions_to_ask": [
+                        "Which specific company, product, or initiative does the label 'undefined' refer to?",
+                        "Can you provide recent press releases, investor presentations, or public filings for 'undefined'?",
+                        "Who are the primary stakeholders and decision-makers for 'undefined' (names/titles)?",
+                        "What are the top business priorities and KPIs for 'undefined' for the next 90 days?",
+                        "Are there upcoming product launches, campaigns, or regulatory events we should know about?"
+                      ],
+                      "sources": [
+                        {
+                          "title": "MSI Launches 5th-Gen Penta Tandem QD-OLED, 5K Glossy Mini-LED Monitors & \u201cLuckyClaw\u201d AI At Computex 2026",
+                          "url": "https://wccftech.com/msi-launches-5th-gen-penta-tandem-qd-oled-5k-glossy-mini-led-monitors-luckyclaw-ai-at-computex-2026/",
+                          "publisher": "Wccftech",
+                          "date": "2026-06-03T18:10:05Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp added to PyPI",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp 1.0.1",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/1.0.1/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp 1.0.3",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/1.0.3/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T12:30:41Z"
+                        },
+                        {
+                          "title": "Show HN: Odeva Booking \u2013 A unified PMS for holiday parks and campgrounds",
+                          "url": "https://news.ycombinator.com/item?id=48376362",
+                          "publisher": "Hacker News",
+                          "date": "2026-06-02T21:11:42Z"
+                        },
+                        {
+                          "title": "MSI\u2019s triple-mode OLED gaming monitor goes from 4K to 680Hz",
+                          "url": "https://www.pcworld.com/article/3154523/msi-mpg-oled-322urdx36-has-a-wild-trick-three-display-modes.html",
+                          "publisher": "PCWorld",
+                          "date": "2026-06-02T14:18:52Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp added to PyPI",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-02T13:27:15Z"
+                        },
+                        {
+                          "title": "Affirm Launches UK BNPL Partnership With Stripe",
+                          "url": "https://www.pymnts.com/bnpl/2026/affirm-launches-uk-bnpl-partnership-with-stripe/",
+                          "publisher": "PYMNTS",
+                          "date": "2026-06-02T12:22:07Z"
+                        },
+                        {
+                          "title": "Radar Trends to Watch: June 2026",
+                          "url": "https://www.oreilly.com/radar/radar-trends-to-watch-june-2026/#BlogPosting",
+                          "publisher": "Oreilly.com",
+                          "date": "2026-06-02T10:58:22Z"
+                        }
+                      ]
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Merge": [
+        {
+          "startTime": 1780685992066,
+          "executionIndex": 4,
+          "source": [
+            {
+              "previousNode": "Call 'Company Research Agent'",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            },
+            {
+              "previousNode": "Call 'NEWS Intelligence Agent'",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 32,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "company": "undefined",
+                      "company_overview": "No company name was provided in the request. Please provide the target company name or domain so a sales-focused research brief can be prepared.",
+                      "products_services": [],
+                      "business_model": "Unknown - insufficient information provided.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Alert the prospect that external public reporting about 'undefined' was not found in the provided news set \u2014 request their help to surface relevant updates so the conversation can be tailored.",
+                        "Ask the prospect to confirm what 'undefined' refers to (company, product, or initiative) and share the most important recent developments and priorities."
+                      ],
+                      "questions_to_ask": [
+                        "Which specific company, product, or initiative does the label 'undefined' refer to?",
+                        "Can you provide recent press releases, investor presentations, or public filings for 'undefined'?",
+                        "Who are the primary stakeholders and decision-makers for 'undefined' (names/titles)?",
+                        "What are the top business priorities and KPIs for 'undefined' for the next 90 days?",
+                        "Are there upcoming product launches, campaigns, or regulatory events we should know about?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "The request did not include a usable company name; it contained an unresolved template variable.",
+                          "source": "User request",
+                          "source_url": "N/A",
+                          "confidence": "High",
+                          "title": "MSI Launches 5th-Gen Penta Tandem QD-OLED, 5K Glossy Mini-LED Monitors & \u201cLuckyClaw\u201d AI At Computex 2026",
+                          "url": "https://wccftech.com/msi-launches-5th-gen-penta-tandem-qd-oled-5k-glossy-mini-led-monitors-luckyclaw-ai-at-computex-2026/",
+                          "publisher": "Wccftech",
+                          "date": "2026-06-03T18:10:05Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp added to PyPI",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp 1.0.1",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/1.0.1/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp 1.0.3",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/1.0.3/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T12:30:41Z"
+                        },
+                        {
+                          "title": "Show HN: Odeva Booking \u2013 A unified PMS for holiday parks and campgrounds",
+                          "url": "https://news.ycombinator.com/item?id=48376362",
+                          "publisher": "Hacker News",
+                          "date": "2026-06-02T21:11:42Z"
+                        },
+                        {
+                          "title": "MSI\u2019s triple-mode OLED gaming monitor goes from 4K to 680Hz",
+                          "url": "https://www.pcworld.com/article/3154523/msi-mpg-oled-322urdx36-has-a-wild-trick-three-display-modes.html",
+                          "publisher": "PCWorld",
+                          "date": "2026-06-02T14:18:52Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp added to PyPI",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-02T13:27:15Z"
+                        },
+                        {
+                          "title": "Affirm Launches UK BNPL Partnership With Stripe",
+                          "url": "https://www.pymnts.com/bnpl/2026/affirm-launches-uk-bnpl-partnership-with-stripe/",
+                          "publisher": "PYMNTS",
+                          "date": "2026-06-02T12:22:07Z"
+                        },
+                        {
+                          "title": "Radar Trends to Watch: June 2026",
+                          "url": "https://www.oreilly.com/radar/radar-trends-to-watch-june-2026/#BlogPosting",
+                          "publisher": "Oreilly.com",
+                          "date": "2026-06-02T10:58:22Z"
+                        }
+                      ],
+                      "major_developments": [],
+                      "positive_signals": [],
+                      "risk_signals": [],
+                      "business_priorities": [
+                        "Available news coverage is limited: fewer than 3 directly relevant articles about 'undefined' were found in the provided dataset, so external intelligence is insufficient. Recommend obtaining clarification on the entity labeled 'undefined' and asking the prospect for recent press releases, investor updates, or internal announcements before the sales meeting."
+                      ]
+                    }
+                  },
+                  "binary": {},
+                  "pairedItem": [
+                    {
+                      "item": 0
+                    },
+                    {
+                      "item": 0,
+                      "input": 1
+                    },
+                    {
+                      "item": 0,
+                      "input": 1
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Edit Fields2": [
+        {
+          "startTime": 1780685992100,
+          "executionIndex": 5,
+          "source": [
+            {
+              "previousNode": "Merge",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 98,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "company": "Stripe",
+                    "person_name": "Rahul Patil",
+                    "role_title": "CTO",
+                    "meeting_type": "Initial Discovery Meeting",
+                    "meeting_goal": "Initial Discovery Meeting",
+                    "attendee_name": null,
+                    "priority": "high",
+                    "company_research": {
+                      "company": "Unknown - company name not provided",
+                      "company_overview": "No company name was provided in the request. Please provide the target company name or domain so a sales-focused research brief can be prepared.",
+                      "products_services": [],
+                      "business_model": "Unknown - insufficient information provided.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Please provide the company name and, if available, website/domain, region, or business unit of interest."
+                      ],
+                      "questions_to_ask": [
+                        "Which company should be researched?",
+                        "Do you have a specific market, geography, or product line to focus on?",
+                        "Is this for a prospecting call, renewal, expansion, or executive meeting?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "The request did not include a usable company name; it contained an unresolved template variable.",
+                          "source": "User request",
+                          "source_url": "N/A",
+                          "confidence": "High"
+                        }
+                      ]
+                    },
+                    "news_intelligence": {
+                      "company": "undefined",
+                      "major_developments": [],
+                      "positive_signals": [],
+                      "risk_signals": [],
+                      "business_priorities": [
+                        "Available news coverage is limited: fewer than 3 directly relevant articles about 'undefined' were found in the provided dataset, so external intelligence is insufficient. Recommend obtaining clarification on the entity labeled 'undefined' and asking the prospect for recent press releases, investor updates, or internal announcements before the sales meeting."
+                      ],
+                      "talking_points": [
+                        "Alert the prospect that external public reporting about 'undefined' was not found in the provided news set \u2014 request their help to surface relevant updates so the conversation can be tailored.",
+                        "Ask the prospect to confirm what 'undefined' refers to (company, product, or initiative) and share the most important recent developments and priorities."
+                      ],
+                      "questions_to_ask": [
+                        "Which specific company, product, or initiative does the label 'undefined' refer to?",
+                        "Can you provide recent press releases, investor presentations, or public filings for 'undefined'?",
+                        "Who are the primary stakeholders and decision-makers for 'undefined' (names/titles)?",
+                        "What are the top business priorities and KPIs for 'undefined' for the next 90 days?",
+                        "Are there upcoming product launches, campaigns, or regulatory events we should know about?"
+                      ],
+                      "sources": [
+                        {
+                          "title": "MSI Launches 5th-Gen Penta Tandem QD-OLED, 5K Glossy Mini-LED Monitors & \u201cLuckyClaw\u201d AI At Computex 2026",
+                          "url": "https://wccftech.com/msi-launches-5th-gen-penta-tandem-qd-oled-5k-glossy-mini-led-monitors-luckyclaw-ai-at-computex-2026/",
+                          "publisher": "Wccftech",
+                          "date": "2026-06-03T18:10:05Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp added to PyPI",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "meok-stripe-acp-checkout-mcp 1.0.1",
+                          "url": "https://pypi.org/project/meok-stripe-acp-checkout-mcp/1.0.1/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T13:37:23Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp 1.0.3",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/1.0.3/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-03T12:30:41Z"
+                        },
+                        {
+                          "title": "Show HN: Odeva Booking \u2013 A unified PMS for holiday parks and campgrounds",
+                          "url": "https://news.ycombinator.com/item?id=48376362",
+                          "publisher": "Hacker News",
+                          "date": "2026-06-02T21:11:42Z"
+                        },
+                        {
+                          "title": "MSI\u2019s triple-mode OLED gaming monitor goes from 4K to 680Hz",
+                          "url": "https://www.pcworld.com/article/3154523/msi-mpg-oled-322urdx36-has-a-wild-trick-three-display-modes.html",
+                          "publisher": "PCWorld",
+                          "date": "2026-06-02T14:18:52Z"
+                        },
+                        {
+                          "title": "agent-x402-paywall-mcp added to PyPI",
+                          "url": "https://pypi.org/project/agent-x402-paywall-mcp/",
+                          "publisher": "Pypi.org",
+                          "date": "2026-06-02T13:27:15Z"
+                        },
+                        {
+                          "title": "Affirm Launches UK BNPL Partnership With Stripe",
+                          "url": "https://www.pymnts.com/bnpl/2026/affirm-launches-uk-bnpl-partnership-with-stripe/",
+                          "publisher": "PYMNTS",
+                          "date": "2026-06-02T12:22:07Z"
+                        },
+                        {
+                          "title": "Radar Trends to Watch: June 2026",
+                          "url": "https://www.oreilly.com/radar/radar-trends-to-watch-june-2026/#BlogPosting",
+                          "publisher": "Oreilly.com",
+                          "date": "2026-06-02T10:58:22Z"
+                        }
+                      ]
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Call 'Stakeholder Brief Agent'": [
+        {
+          "startTime": 1780685992201,
+          "executionIndex": 6,
+          "source": [
+            {
+              "previousNode": "Edit Fields2",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 24214,
+          "metadata": {
+            "subExecution": {
+              "executionId": "198",
+              "workflowId": "ioTd3WM0Ev3Vcb27"
+            },
+            "subExecutionsCount": 1
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "stakeholder_summary": "Verified facts: Rahul Patil \u2014 CTO at Stripe. Meeting: Initial discovery (priority: high). No verified personal biography or employment history beyond the job title was provided. Inferred: As Stripe's CTO he will focus on technical strategy, platform reliability, scalability, security/compliance, developer experience, and enabling new payment flows (e.g., BNPL).",
+                      "current_role_context": "Verified: CTO at Stripe. Inferred context: Responsible for payments platform architecture, uptime and latency SLAs, fraud and risk controls, developer platform/SDKs, integrations with partners (e.g., BNPL providers), and alignment of engineering roadmap to business growth.",
+                      "verified_personal_details_available": "Name, role/title, and company are verified. No additional personal details (background, tenure, education, public statements) were provided or verified.",
+                      "likely_priorities": [
+                        "Maintaining platform reliability and low-latency payment processing at scale",
+                        "Reducing fraud and chargeback risk while improving approval rates",
+                        "Improving developer experience and accelerating integrations",
+                        "Supporting new payment methods and partnerships (news: Affirm-Stripe UK BNPL partnership noted in provided intelligence)",
+                        "Cost efficiency and predictable operational expenses",
+                        "Compliance and data residency (PCI-DSS, regional regulations)"
+                      ],
+                      "likely_business_concerns": [
+                        "Integration complexity and engineering effort required for new solutions",
+                        "Security, privacy, and regulatory compliance risks",
+                        "Performance impact (latency, throughput) and availability during changes",
+                        "Vendor lock-in and long-term flexibility",
+                        "Measurable ROI and impact on key metrics (conversion, authorization rates, fraud loss)"
+                      ],
+                      "communication_style_recommendations": [
+                        "Be concise and structured \u2014 CTOs prefer a clear agenda and time-boxed conversation",
+                        "Lead with business impact metrics (latency, authorization %, fraud reduction, revenue uplift) and show technical evidence (benchmarks, architecture diagrams)",
+                        "Be prepared to dive technical \u2014 have implementation details, APIs, SDKs, and a migration/POC plan ready",
+                        "Provide security/compliance documentation up front (PCI, SOC, data handling) and reference customers or benchmarks",
+                        "Offer a low-risk, time-limited POC with clear success criteria and minimal engineering lift"
+                      ],
+                      "personalization_angles": [
+                        "Reference Stripe\u2019s payments-first focus and recent public signal: Affirm\u2019s UK BNPL partnership with Stripe (from provided news intelligence) when discussing alternative payment arrangements and partnership integrations",
+                        "Emphasize improvements to developer experience and SDKs \u2014 Stripe is developer-centric so show how your solution reduces integration friction",
+                        "Frame value in terms of platform reliability and scale \u2014 present architecture and performance characteristics relevant to high-throughput payment systems",
+                        "If available, ask for recent internal priorities or announcements (roadmap, KPIs) to align your discussion \u2014 the supplied external intelligence set was limited"
+                      ],
+                      "possible_objections": [
+                        "Cost and unclear ROI \u2014 expect detailed questions about pricing and payback",
+                        "Security/compliance concerns (PCI, data residency) \u2014 will request documentation and controls",
+                        "Integration effort and disruption to current systems and release schedules",
+                        "Overlap with internal roadmap or existing vendor commitments",
+                        "Risk to performance or uptime during rollout"
+                      ],
+                      "stakeholder_specific_questions": [
+                        "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                        "What KPIs does your team measure for success (e.g., authorization rate, latency, fraud loss, uptime)?",
+                        "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration, cost)?",
+                        "Which teams/roles will own evaluation and implementation? Who are the other decision-makers?",
+                        "What constraints (regulatory, data residency, PCI) must any new vendor meet?",
+                        "How much engineering effort can you allocate for a pilot/POC and what timeline would be acceptable?",
+                        "Are there recent partnerships or product initiatives (e.g., BNPL integrations) we should be aware of that affect priorities?"
+                      ],
+                      "recommended_approach": "Start the meeting with a tight 3\u20135 minute agenda and confirm Rahul\u2019s top priorities. Validate measured KPIs and current pain points, then present 2\u20133 targeted value propositions that map to those priorities (e.g., reduce fraud loss X%, improve authorization by Y%, decrease integration time by Z weeks). Use concise technical slides or diagrams showing architecture and integration patterns, and offer a low-effort POC with clear success metrics and timeline. Provide security/compliance docs and customer references after the call. Agree next steps (POC scope, stakeholders, timeline) before closing."
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Edit Fields3": [
+        {
+          "startTime": 1780686016416,
+          "executionIndex": 7,
+          "source": [
+            {
+              "previousNode": "Call 'Stakeholder Brief Agent'",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 23,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "company": "Stripe",
+                    "person_name": "Rahul Patil",
+                    "role_title": "CTO",
+                    "meeting_type": "Initial Discovery Meeting",
+                    "meeting_goal": "Initial Discovery Meeting",
+                    "attendee_name": null,
+                    "priority": "high",
+                    "company_research": {
+                      "company": "Unknown - company name not provided",
+                      "company_overview": "No company name was provided in the request. Please provide the target company name or domain so a sales-focused research brief can be prepared.",
+                      "products_services": [],
+                      "business_model": "Unknown - insufficient information provided.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Please provide the company name and, if available, website/domain, region, or business unit of interest."
+                      ],
+                      "questions_to_ask": [
+                        "Which company should be researched?",
+                        "Do you have a specific market, geography, or product line to focus on?",
+                        "Is this for a prospecting call, renewal, expansion, or executive meeting?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "The request did not include a usable company name; it contained an unresolved template variable.",
+                          "source": "User request",
+                          "source_url": "N/A",
+                          "confidence": "High"
+                        }
+                      ]
+                    },
+                    "news_intelligence": {
+                      "stakeholder_summary": "Verified facts: Rahul Patil \u2014 CTO at Stripe. Meeting: Initial discovery (priority: high). No verified personal biography or employment history beyond the job title was provided. Inferred: As Stripe's CTO he will focus on technical strategy, platform reliability, scalability, security/compliance, developer experience, and enabling new payment flows (e.g., BNPL).",
+                      "current_role_context": "Verified: CTO at Stripe. Inferred context: Responsible for payments platform architecture, uptime and latency SLAs, fraud and risk controls, developer platform/SDKs, integrations with partners (e.g., BNPL providers), and alignment of engineering roadmap to business growth.",
+                      "verified_personal_details_available": "Name, role/title, and company are verified. No additional personal details (background, tenure, education, public statements) were provided or verified.",
+                      "likely_priorities": [
+                        "Maintaining platform reliability and low-latency payment processing at scale",
+                        "Reducing fraud and chargeback risk while improving approval rates",
+                        "Improving developer experience and accelerating integrations",
+                        "Supporting new payment methods and partnerships (news: Affirm-Stripe UK BNPL partnership noted in provided intelligence)",
+                        "Cost efficiency and predictable operational expenses",
+                        "Compliance and data residency (PCI-DSS, regional regulations)"
+                      ],
+                      "likely_business_concerns": [
+                        "Integration complexity and engineering effort required for new solutions",
+                        "Security, privacy, and regulatory compliance risks",
+                        "Performance impact (latency, throughput) and availability during changes",
+                        "Vendor lock-in and long-term flexibility",
+                        "Measurable ROI and impact on key metrics (conversion, authorization rates, fraud loss)"
+                      ],
+                      "communication_style_recommendations": [
+                        "Be concise and structured \u2014 CTOs prefer a clear agenda and time-boxed conversation",
+                        "Lead with business impact metrics (latency, authorization %, fraud reduction, revenue uplift) and show technical evidence (benchmarks, architecture diagrams)",
+                        "Be prepared to dive technical \u2014 have implementation details, APIs, SDKs, and a migration/POC plan ready",
+                        "Provide security/compliance documentation up front (PCI, SOC, data handling) and reference customers or benchmarks",
+                        "Offer a low-risk, time-limited POC with clear success criteria and minimal engineering lift"
+                      ],
+                      "personalization_angles": [
+                        "Reference Stripe\u2019s payments-first focus and recent public signal: Affirm\u2019s UK BNPL partnership with Stripe (from provided news intelligence) when discussing alternative payment arrangements and partnership integrations",
+                        "Emphasize improvements to developer experience and SDKs \u2014 Stripe is developer-centric so show how your solution reduces integration friction",
+                        "Frame value in terms of platform reliability and scale \u2014 present architecture and performance characteristics relevant to high-throughput payment systems",
+                        "If available, ask for recent internal priorities or announcements (roadmap, KPIs) to align your discussion \u2014 the supplied external intelligence set was limited"
+                      ],
+                      "possible_objections": [
+                        "Cost and unclear ROI \u2014 expect detailed questions about pricing and payback",
+                        "Security/compliance concerns (PCI, data residency) \u2014 will request documentation and controls",
+                        "Integration effort and disruption to current systems and release schedules",
+                        "Overlap with internal roadmap or existing vendor commitments",
+                        "Risk to performance or uptime during rollout"
+                      ],
+                      "stakeholder_specific_questions": [
+                        "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                        "What KPIs does your team measure for success (e.g., authorization rate, latency, fraud loss, uptime)?",
+                        "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration, cost)?",
+                        "Which teams/roles will own evaluation and implementation? Who are the other decision-makers?",
+                        "What constraints (regulatory, data residency, PCI) must any new vendor meet?",
+                        "How much engineering effort can you allocate for a pilot/POC and what timeline would be acceptable?",
+                        "Are there recent partnerships or product initiatives (e.g., BNPL integrations) we should be aware of that affect priorities?"
+                      ],
+                      "recommended_approach": "Start the meeting with a tight 3\u20135 minute agenda and confirm Rahul\u2019s top priorities. Validate measured KPIs and current pain points, then present 2\u20133 targeted value propositions that map to those priorities (e.g., reduce fraud loss X%, improve authorization by Y%, decrease integration time by Z weeks). Use concise technical slides or diagrams showing architecture and integration patterns, and offer a low-effort POC with clear success metrics and timeline. Provide security/compliance docs and customer references after the call. Agree next steps (POC scope, stakeholders, timeline) before closing."
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Call 'Brief Generator Agent'": [
+        {
+          "startTime": 1780686016442,
+          "executionIndex": 8,
+          "source": [
+            {
+              "previousNode": "Edit Fields3",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 28656,
+          "metadata": {
+            "subExecution": {
+              "executionId": "199",
+              "workflowId": "DQUo9PkDTxDueIsx"
+            },
+            "subExecutionsCount": 1
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "brief_title": "Initial Discovery \u2014 Rahul Patil (CTO), Stripe",
+                      "executive_summary": "High-priority initial discovery with Rahul Patil (CTO) to validate Stripe\u2019s immediate technical priorities for payments, align on measurable KPIs (authorization rate, latency, fraud loss, uptime), and propose a low-effort POC that demonstrates measurable impact on those KPIs. Goal: confirm stakeholders, success criteria, and an agreed POC timeline before leaving the call.",
+                      "why_this_meeting_matters": "- Attendee is Stripe\u2019s CTO \u2014 conversation will determine technical fit and POC feasibility. (Verified)\n- Stripe is actively engaging partners for new payment flows (BNPL signal in provided intelligence) \u2014 creates urgency to support integrations without increasing risk. (Provided intelligence)\n- CTO-level buy-in is required to shorten evaluation cycles and to avoid overrun on engineering effort and compliance review.",
+                      "company_context": "- Payments-first, developer-centric platform with high emphasis on reliability, low latency, fraud controls, and extensible integrations. (Inferred from provided intelligence)\n- Likely obligations include PCI and regional compliance; performance and uptime SLAs are central. (Inferred)\n- Not available from current data: internal org structure, existing vendors, contract timeline, or prior engagements with your company.",
+                      "recent_news_that_matters": [
+                        "Affirm \u2014 Stripe: UK BNPL partnership noted in provided intelligence (signals focus on enabling new payment methods and partner integrations)."
+                      ],
+                      "sales_triggers": [
+                        "CTO meeting (decision influence on architecture and integration plans).",
+                        "Public signal of BNPL partnership \u2014 potential need to integrate new payment flows and partners quickly.",
+                        "Focus on platform reliability and scale \u2014 any solution must show zero or positive impact on latency/throughput.",
+                        "Developer-centric culture \u2014 reduce engineering lift and speed time-to-market.",
+                        "Compressed evaluation cycles if POC can be low-risk and time-boxed."
+                      ],
+                      "possible_pain_points": [
+                        "Integration complexity and required engineering effort.",
+                        "Security, privacy and PCI/regulatory constraints.",
+                        "Risk of performance impact (latency, throughput) from new integrations.",
+                        "Vendor lock-in and lack of long-term flexibility.",
+                        "Need for measurable ROI on authorization rate, fraud loss, conversion uplift."
+                      ],
+                      "risks_or_red_flags": [
+                        "Expect deep questions on pricing and explicit ROI \u2014 prepare numbers or frameworks. (Possible objection)",
+                        "Security/compliance gating (PCI, SOC, data residency) may block pilots without docs. (Red flag)",
+                        "High bar for engineering resources \u2014 POC must minimize lift. (Operational risk)",
+                        "Overlap with Stripe\u2019s internal roadmap or existing vendor commitments \u2014 potential to deprioritize vendor evaluation."
+                      ],
+                      "talking_points": [
+                        "Open with a 3\u20135 minute, time-boxed agenda and confirm Rahul\u2019s top priorities.",
+                        "Lead with one concise value statement tied to measurable outcomes (example: reduce fraud loss, increase approval rates, or shorten integration time).",
+                        "Ask for current KPIs up front (authorization rate, latency, fraud loss, uptime) and baseline numbers to frame any POC.",
+                        "Offer a low-effort, time-boxed POC with clear success criteria and a target timeline (e.g., engineering < X weeks \u2014 state as \u201cminimal engineering lift\u201d if numbers not available).",
+                        "Commit to sharing security/compliance documentation and customer references immediately after the call."
+                      ],
+                      "discovery_questions": [
+                        "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                        "What KPIs does your team measure for success (authorization rate, latency, fraud loss, uptime)? What are current baselines?",
+                        "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration effort, cost)?",
+                        "Which teams and stakeholders will own evaluation and implementation? Who are the other decision-makers?",
+                        "What regulatory or data residency constraints must any new vendor meet?",
+                        "How much engineering effort can you allocate for a pilot/POC and what timeline is acceptable?",
+                        "Are there recent partnerships or product initiatives (eg. BNPL integrations) that change priorities or timelines?"
+                      ],
+                      "recommended_meeting_strategy": "1) Start: 3\u20135 minute agenda, confirm time and goals. 2) Validate: ask 2\u20133 KPI questions to set baselines. 3) Map: present 2\u20133 targeted value props that directly map to those KPIs (fraud reduction, authorization improvement, integration speed). 4) Evidence: show concise technical approach (architecture/integration patterns) and risk controls. 5) Close: propose a low-effort POC with success criteria, required stakeholders, and a target timeline; agree next steps and documentation delivery.",
+                      "rep_focus": "- Be concise and metrics-driven \u2014 CTO wants impact, not features. \n- Emphasize minimal engineering lift and developer experience gains. \n- Lead with security/compliance readiness (PCI, SOC) and customer references. \n- Secure a committed POC owner, resources, and timeline before ending the call.",
+                      "verified_signals": [
+                        {
+                          "signal": "Rahul Patil \u2014 CTO at Stripe (verified role and name).",
+                          "source": "Provided stakeholder summary / news intelligence",
+                          "source_url": "Not available from current data."
+                        },
+                        {
+                          "signal": "Affirm\u2013Stripe: UK BNPL partnership noted in provided intelligence (public signal indicating Stripe is enabling BNPL integrations).",
+                          "source": "Provided news intelligence",
+                          "source_url": "Not available from current data."
+                        }
+                      ],
+                      "inferred_recommendations": [
+                        "Prepare a 1\u20132 slide technical pattern showing integration points and expected impact on latency/throughput.",
+                        "Bring PCI/SOC and data-handling documentation to share immediately after the call.",
+                        "Predefine a low-effort POC scope with clear success metrics (authorization rate lift, fraud reduction, integration time) and an estimated minimal engineering effort requirement.",
+                        "Time-box the meeting and get agreement on next steps: POC scope, stakeholders, timeline, and delivery of compliance docs.",
+                        "If Rahul defers to others, ask for names/roles and request a short follow-up (15\u201330 min) with the implementation owners present."
+                      ]
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Create a row": [
+        {
+          "startTime": 1780686045101,
+          "executionIndex": 9,
+          "source": [
+            {
+              "previousNode": "Call 'Brief Generator Agent'",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 1658,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "id": "94d0bd63-afdb-4ad5-bf1c-c3485172bb15",
+                    "created_at": "2026-06-05T19:00:46.236438+00:00",
+                    "company": "Stripe",
+                    "person_name": "Rahul Patil",
+                    "role_title": "CTO",
+                    "meeting_type": "Initial Discovery Meeting",
+                    "meeting_goal": "Initial Discovery Meeting",
+                    "priority": "high",
+                    "brief_title": "Initial Discovery \u2014 Rahul Patil (CTO), Stripe",
+                    "executive_summary": "High-priority initial discovery with Rahul Patil (CTO) to validate Stripe\u2019s immediate technical priorities for payments, align on measurable KPIs (authorization rate, latency, fraud loss, uptime), and propose a low-effort POC that demonstrates measurable impact on those KPIs. Goal: confirm stakeholders, success criteria, and an agreed POC timeline before leaving the call.",
+                    "why_this_meeting_matters": "- Attendee is Stripe\u2019s CTO \u2014 conversation will determine technical fit and POC feasibility. (Verified)\n- Stripe is actively engaging partners for new payment flows (BNPL signal in provided intelligence) \u2014 creates urgency to support integrations without increasing risk. (Provided intelligence)\n- CTO-level buy-in is required to shorten evaluation cycles and to avoid overrun on engineering effort and compliance review.",
+                    "company_context": "- Payments-first, developer-centric platform with high emphasis on reliability, low latency, fraud controls, and extensible integrations. (Inferred from provided intelligence)\n- Likely obligations include PCI and regional compliance; performance and uptime SLAs are central. (Inferred)\n- Not available from current data: internal org structure, existing vendors, contract timeline, or prior engagements with your company.",
+                    "recent_news_that_matters": [
+                      "Affirm \u2014 Stripe: UK BNPL partnership noted in provided intelligence (signals focus on enabling new payment methods and partner integrations)."
+                    ],
+                    "sales_triggers": [
+                      "CTO meeting (decision influence on architecture and integration plans).",
+                      "Public signal of BNPL partnership \u2014 potential need to integrate new payment flows and partners quickly.",
+                      "Focus on platform reliability and scale \u2014 any solution must show zero or positive impact on latency/throughput.",
+                      "Developer-centric culture \u2014 reduce engineering lift and speed time-to-market.",
+                      "Compressed evaluation cycles if POC can be low-risk and time-boxed."
+                    ],
+                    "possible_pain_points": [
+                      "Integration complexity and required engineering effort.",
+                      "Security, privacy and PCI/regulatory constraints.",
+                      "Risk of performance impact (latency, throughput) from new integrations.",
+                      "Vendor lock-in and lack of long-term flexibility.",
+                      "Need for measurable ROI on authorization rate, fraud loss, conversion uplift."
+                    ],
+                    "risks_or_red_flags": [
+                      "Expect deep questions on pricing and explicit ROI \u2014 prepare numbers or frameworks. (Possible objection)",
+                      "Security/compliance gating (PCI, SOC, data residency) may block pilots without docs. (Red flag)",
+                      "High bar for engineering resources \u2014 POC must minimize lift. (Operational risk)",
+                      "Overlap with Stripe\u2019s internal roadmap or existing vendor commitments \u2014 potential to deprioritize vendor evaluation."
+                    ],
+                    "talking_points": [
+                      "Open with a 3\u20135 minute, time-boxed agenda and confirm Rahul\u2019s top priorities.",
+                      "Lead with one concise value statement tied to measurable outcomes (example: reduce fraud loss, increase approval rates, or shorten integration time).",
+                      "Ask for current KPIs up front (authorization rate, latency, fraud loss, uptime) and baseline numbers to frame any POC.",
+                      "Offer a low-effort, time-boxed POC with clear success criteria and a target timeline (e.g., engineering < X weeks \u2014 state as \u201cminimal engineering lift\u201d if numbers not available).",
+                      "Commit to sharing security/compliance documentation and customer references immediately after the call."
+                    ],
+                    "discovery_questions": [
+                      "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                      "What KPIs does your team measure for success (authorization rate, latency, fraud loss, uptime)? What are current baselines?",
+                      "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration effort, cost)?",
+                      "Which teams and stakeholders will own evaluation and implementation? Who are the other decision-makers?",
+                      "What regulatory or data residency constraints must any new vendor meet?",
+                      "How much engineering effort can you allocate for a pilot/POC and what timeline is acceptable?",
+                      "Are there recent partnerships or product initiatives (eg. BNPL integrations) that change priorities or timelines?"
+                    ],
+                    "recommended_meeting_strategy": "1) Start: 3\u20135 minute agenda, confirm time and goals. 2) Validate: ask 2\u20133 KPI questions to set baselines. 3) Map: present 2\u20133 targeted value props that directly map to those KPIs (fraud reduction, authorization improvement, integration speed). 4) Evidence: show concise technical approach (architecture/integration patterns) and risk controls. 5) Close: propose a low-effort POC with success criteria, required stakeholders, and a target timeline; agree next steps and documentation delivery.",
+                    "rep_focus": "- Be concise and metrics-driven \u2014 CTO wants impact, not features. \n- Emphasize minimal engineering lift and developer experience gains. \n- Lead with security/compliance readiness (PCI, SOC) and customer references. \n- Secure a committed POC owner, resources, and timeline before ending the call.",
+                    "verified_signals": [
+                      {
+                        "signal": "Rahul Patil \u2014 CTO at Stripe (verified role and name).",
+                        "source": "Provided stakeholder summary / news intelligence",
+                        "source_url": "Not available from current data."
+                      },
+                      {
+                        "signal": "Affirm\u2013Stripe: UK BNPL partnership noted in provided intelligence (public signal indicating Stripe is enabling BNPL integrations).",
+                        "source": "Provided news intelligence",
+                        "source_url": "Not available from current data."
+                      }
+                    ],
+                    "inferred_recommendations": [
+                      "Prepare a 1\u20132 slide technical pattern showing integration points and expected impact on latency/throughput.",
+                      "Bring PCI/SOC and data-handling documentation to share immediately after the call.",
+                      "Predefine a low-effort POC scope with clear success metrics (authorization rate lift, fraud reduction, integration time) and an estimated minimal engineering effort requirement.",
+                      "Time-box the meeting and get agreement on next steps: POC scope, stakeholders, timeline, and delivery of compliance docs.",
+                      "If Rahul defers to others, ask for names/roles and request a short follow-up (15\u201330 min) with the implementation owners present."
+                    ],
+                    "full_brief": {
+                      "rep_focus": "- Be concise and metrics-driven \u2014 CTO wants impact, not features. \n- Emphasize minimal engineering lift and developer experience gains. \n- Lead with security/compliance readiness (PCI, SOC) and customer references. \n- Secure a committed POC owner, resources, and timeline before ending the call.",
+                      "brief_title": "Initial Discovery \u2014 Rahul Patil (CTO), Stripe",
+                      "sales_triggers": [
+                        "CTO meeting (decision influence on architecture and integration plans).",
+                        "Public signal of BNPL partnership \u2014 potential need to integrate new payment flows and partners quickly.",
+                        "Focus on platform reliability and scale \u2014 any solution must show zero or positive impact on latency/throughput.",
+                        "Developer-centric culture \u2014 reduce engineering lift and speed time-to-market.",
+                        "Compressed evaluation cycles if POC can be low-risk and time-boxed."
+                      ],
+                      "talking_points": [
+                        "Open with a 3\u20135 minute, time-boxed agenda and confirm Rahul\u2019s top priorities.",
+                        "Lead with one concise value statement tied to measurable outcomes (example: reduce fraud loss, increase approval rates, or shorten integration time).",
+                        "Ask for current KPIs up front (authorization rate, latency, fraud loss, uptime) and baseline numbers to frame any POC.",
+                        "Offer a low-effort, time-boxed POC with clear success criteria and a target timeline (e.g., engineering < X weeks \u2014 state as \u201cminimal engineering lift\u201d if numbers not available).",
+                        "Commit to sharing security/compliance documentation and customer references immediately after the call."
+                      ],
+                      "company_context": "- Payments-first, developer-centric platform with high emphasis on reliability, low latency, fraud controls, and extensible integrations. (Inferred from provided intelligence)\n- Likely obligations include PCI and regional compliance; performance and uptime SLAs are central. (Inferred)\n- Not available from current data: internal org structure, existing vendors, contract timeline, or prior engagements with your company.",
+                      "verified_signals": [
+                        {
+                          "signal": "Rahul Patil \u2014 CTO at Stripe (verified role and name).",
+                          "source": "Provided stakeholder summary / news intelligence",
+                          "source_url": "Not available from current data."
+                        },
+                        {
+                          "signal": "Affirm\u2013Stripe: UK BNPL partnership noted in provided intelligence (public signal indicating Stripe is enabling BNPL integrations).",
+                          "source": "Provided news intelligence",
+                          "source_url": "Not available from current data."
+                        }
+                      ],
+                      "executive_summary": "High-priority initial discovery with Rahul Patil (CTO) to validate Stripe\u2019s immediate technical priorities for payments, align on measurable KPIs (authorization rate, latency, fraud loss, uptime), and propose a low-effort POC that demonstrates measurable impact on those KPIs. Goal: confirm stakeholders, success criteria, and an agreed POC timeline before leaving the call.",
+                      "risks_or_red_flags": [
+                        "Expect deep questions on pricing and explicit ROI \u2014 prepare numbers or frameworks. (Possible objection)",
+                        "Security/compliance gating (PCI, SOC, data residency) may block pilots without docs. (Red flag)",
+                        "High bar for engineering resources \u2014 POC must minimize lift. (Operational risk)",
+                        "Overlap with Stripe\u2019s internal roadmap or existing vendor commitments \u2014 potential to deprioritize vendor evaluation."
+                      ],
+                      "discovery_questions": [
+                        "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                        "What KPIs does your team measure for success (authorization rate, latency, fraud loss, uptime)? What are current baselines?",
+                        "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration effort, cost)?",
+                        "Which teams and stakeholders will own evaluation and implementation? Who are the other decision-makers?",
+                        "What regulatory or data residency constraints must any new vendor meet?",
+                        "How much engineering effort can you allocate for a pilot/POC and what timeline is acceptable?",
+                        "Are there recent partnerships or product initiatives (eg. BNPL integrations) that change priorities or timelines?"
+                      ],
+                      "possible_pain_points": [
+                        "Integration complexity and required engineering effort.",
+                        "Security, privacy and PCI/regulatory constraints.",
+                        "Risk of performance impact (latency, throughput) from new integrations.",
+                        "Vendor lock-in and lack of long-term flexibility.",
+                        "Need for measurable ROI on authorization rate, fraud loss, conversion uplift."
+                      ],
+                      "inferred_recommendations": [
+                        "Prepare a 1\u20132 slide technical pattern showing integration points and expected impact on latency/throughput.",
+                        "Bring PCI/SOC and data-handling documentation to share immediately after the call.",
+                        "Predefine a low-effort POC scope with clear success metrics (authorization rate lift, fraud reduction, integration time) and an estimated minimal engineering effort requirement.",
+                        "Time-box the meeting and get agreement on next steps: POC scope, stakeholders, timeline, and delivery of compliance docs.",
+                        "If Rahul defers to others, ask for names/roles and request a short follow-up (15\u201330 min) with the implementation owners present."
+                      ],
+                      "recent_news_that_matters": [
+                        "Affirm \u2014 Stripe: UK BNPL partnership noted in provided intelligence (signals focus on enabling new payment methods and partner integrations)."
+                      ],
+                      "why_this_meeting_matters": "- Attendee is Stripe\u2019s CTO \u2014 conversation will determine technical fit and POC feasibility. (Verified)\n- Stripe is actively engaging partners for new payment flows (BNPL signal in provided intelligence) \u2014 creates urgency to support integrations without increasing risk. (Provided intelligence)\n- CTO-level buy-in is required to shorten evaluation cycles and to avoid overrun on engineering effort and compliance review.",
+                      "recommended_meeting_strategy": "1) Start: 3\u20135 minute agenda, confirm time and goals. 2) Validate: ask 2\u20133 KPI questions to set baselines. 3) Map: present 2\u20133 targeted value props that directly map to those KPIs (fraud reduction, authorization improvement, integration speed). 4) Evidence: show concise technical approach (architecture/integration patterns) and risk controls. 5) Close: propose a low-effort POC with success criteria, required stakeholders, and a target timeline; agree next steps and documentation delivery."
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "Respond to Webhook": [
+        {
+          "startTime": 1780686046762,
+          "executionIndex": 10,
+          "source": [
+            {
+              "previousNode": "Create a row",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 13,
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "id": "94d0bd63-afdb-4ad5-bf1c-c3485172bb15",
+                    "created_at": "2026-06-05T19:00:46.236438+00:00",
+                    "company": "Stripe",
+                    "person_name": "Rahul Patil",
+                    "role_title": "CTO",
+                    "meeting_type": "Initial Discovery Meeting",
+                    "meeting_goal": "Initial Discovery Meeting",
+                    "priority": "high",
+                    "brief_title": "Initial Discovery \u2014 Rahul Patil (CTO), Stripe",
+                    "executive_summary": "High-priority initial discovery with Rahul Patil (CTO) to validate Stripe\u2019s immediate technical priorities for payments, align on measurable KPIs (authorization rate, latency, fraud loss, uptime), and propose a low-effort POC that demonstrates measurable impact on those KPIs. Goal: confirm stakeholders, success criteria, and an agreed POC timeline before leaving the call.",
+                    "why_this_meeting_matters": "- Attendee is Stripe\u2019s CTO \u2014 conversation will determine technical fit and POC feasibility. (Verified)\n- Stripe is actively engaging partners for new payment flows (BNPL signal in provided intelligence) \u2014 creates urgency to support integrations without increasing risk. (Provided intelligence)\n- CTO-level buy-in is required to shorten evaluation cycles and to avoid overrun on engineering effort and compliance review.",
+                    "company_context": "- Payments-first, developer-centric platform with high emphasis on reliability, low latency, fraud controls, and extensible integrations. (Inferred from provided intelligence)\n- Likely obligations include PCI and regional compliance; performance and uptime SLAs are central. (Inferred)\n- Not available from current data: internal org structure, existing vendors, contract timeline, or prior engagements with your company.",
+                    "recent_news_that_matters": [
+                      "Affirm \u2014 Stripe: UK BNPL partnership noted in provided intelligence (signals focus on enabling new payment methods and partner integrations)."
+                    ],
+                    "sales_triggers": [
+                      "CTO meeting (decision influence on architecture and integration plans).",
+                      "Public signal of BNPL partnership \u2014 potential need to integrate new payment flows and partners quickly.",
+                      "Focus on platform reliability and scale \u2014 any solution must show zero or positive impact on latency/throughput.",
+                      "Developer-centric culture \u2014 reduce engineering lift and speed time-to-market.",
+                      "Compressed evaluation cycles if POC can be low-risk and time-boxed."
+                    ],
+                    "possible_pain_points": [
+                      "Integration complexity and required engineering effort.",
+                      "Security, privacy and PCI/regulatory constraints.",
+                      "Risk of performance impact (latency, throughput) from new integrations.",
+                      "Vendor lock-in and lack of long-term flexibility.",
+                      "Need for measurable ROI on authorization rate, fraud loss, conversion uplift."
+                    ],
+                    "risks_or_red_flags": [
+                      "Expect deep questions on pricing and explicit ROI \u2014 prepare numbers or frameworks. (Possible objection)",
+                      "Security/compliance gating (PCI, SOC, data residency) may block pilots without docs. (Red flag)",
+                      "High bar for engineering resources \u2014 POC must minimize lift. (Operational risk)",
+                      "Overlap with Stripe\u2019s internal roadmap or existing vendor commitments \u2014 potential to deprioritize vendor evaluation."
+                    ],
+                    "talking_points": [
+                      "Open with a 3\u20135 minute, time-boxed agenda and confirm Rahul\u2019s top priorities.",
+                      "Lead with one concise value statement tied to measurable outcomes (example: reduce fraud loss, increase approval rates, or shorten integration time).",
+                      "Ask for current KPIs up front (authorization rate, latency, fraud loss, uptime) and baseline numbers to frame any POC.",
+                      "Offer a low-effort, time-boxed POC with clear success criteria and a target timeline (e.g., engineering < X weeks \u2014 state as \u201cminimal engineering lift\u201d if numbers not available).",
+                      "Commit to sharing security/compliance documentation and customer references immediately after the call."
+                    ],
+                    "discovery_questions": [
+                      "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                      "What KPIs does your team measure for success (authorization rate, latency, fraud loss, uptime)? What are current baselines?",
+                      "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration effort, cost)?",
+                      "Which teams and stakeholders will own evaluation and implementation? Who are the other decision-makers?",
+                      "What regulatory or data residency constraints must any new vendor meet?",
+                      "How much engineering effort can you allocate for a pilot/POC and what timeline is acceptable?",
+                      "Are there recent partnerships or product initiatives (eg. BNPL integrations) that change priorities or timelines?"
+                    ],
+                    "recommended_meeting_strategy": "1) Start: 3\u20135 minute agenda, confirm time and goals. 2) Validate: ask 2\u20133 KPI questions to set baselines. 3) Map: present 2\u20133 targeted value props that directly map to those KPIs (fraud reduction, authorization improvement, integration speed). 4) Evidence: show concise technical approach (architecture/integration patterns) and risk controls. 5) Close: propose a low-effort POC with success criteria, required stakeholders, and a target timeline; agree next steps and documentation delivery.",
+                    "rep_focus": "- Be concise and metrics-driven \u2014 CTO wants impact, not features. \n- Emphasize minimal engineering lift and developer experience gains. \n- Lead with security/compliance readiness (PCI, SOC) and customer references. \n- Secure a committed POC owner, resources, and timeline before ending the call.",
+                    "verified_signals": [
+                      {
+                        "signal": "Rahul Patil \u2014 CTO at Stripe (verified role and name).",
+                        "source": "Provided stakeholder summary / news intelligence",
+                        "source_url": "Not available from current data."
+                      },
+                      {
+                        "signal": "Affirm\u2013Stripe: UK BNPL partnership noted in provided intelligence (public signal indicating Stripe is enabling BNPL integrations).",
+                        "source": "Provided news intelligence",
+                        "source_url": "Not available from current data."
+                      }
+                    ],
+                    "inferred_recommendations": [
+                      "Prepare a 1\u20132 slide technical pattern showing integration points and expected impact on latency/throughput.",
+                      "Bring PCI/SOC and data-handling documentation to share immediately after the call.",
+                      "Predefine a low-effort POC scope with clear success metrics (authorization rate lift, fraud reduction, integration time) and an estimated minimal engineering effort requirement.",
+                      "Time-box the meeting and get agreement on next steps: POC scope, stakeholders, timeline, and delivery of compliance docs.",
+                      "If Rahul defers to others, ask for names/roles and request a short follow-up (15\u201330 min) with the implementation owners present."
+                    ],
+                    "full_brief": {
+                      "rep_focus": "- Be concise and metrics-driven \u2014 CTO wants impact, not features. \n- Emphasize minimal engineering lift and developer experience gains. \n- Lead with security/compliance readiness (PCI, SOC) and customer references. \n- Secure a committed POC owner, resources, and timeline before ending the call.",
+                      "brief_title": "Initial Discovery \u2014 Rahul Patil (CTO), Stripe",
+                      "sales_triggers": [
+                        "CTO meeting (decision influence on architecture and integration plans).",
+                        "Public signal of BNPL partnership \u2014 potential need to integrate new payment flows and partners quickly.",
+                        "Focus on platform reliability and scale \u2014 any solution must show zero or positive impact on latency/throughput.",
+                        "Developer-centric culture \u2014 reduce engineering lift and speed time-to-market.",
+                        "Compressed evaluation cycles if POC can be low-risk and time-boxed."
+                      ],
+                      "talking_points": [
+                        "Open with a 3\u20135 minute, time-boxed agenda and confirm Rahul\u2019s top priorities.",
+                        "Lead with one concise value statement tied to measurable outcomes (example: reduce fraud loss, increase approval rates, or shorten integration time).",
+                        "Ask for current KPIs up front (authorization rate, latency, fraud loss, uptime) and baseline numbers to frame any POC.",
+                        "Offer a low-effort, time-boxed POC with clear success criteria and a target timeline (e.g., engineering < X weeks \u2014 state as \u201cminimal engineering lift\u201d if numbers not available).",
+                        "Commit to sharing security/compliance documentation and customer references immediately after the call."
+                      ],
+                      "company_context": "- Payments-first, developer-centric platform with high emphasis on reliability, low latency, fraud controls, and extensible integrations. (Inferred from provided intelligence)\n- Likely obligations include PCI and regional compliance; performance and uptime SLAs are central. (Inferred)\n- Not available from current data: internal org structure, existing vendors, contract timeline, or prior engagements with your company.",
+                      "verified_signals": [
+                        {
+                          "signal": "Rahul Patil \u2014 CTO at Stripe (verified role and name).",
+                          "source": "Provided stakeholder summary / news intelligence",
+                          "source_url": "Not available from current data."
+                        },
+                        {
+                          "signal": "Affirm\u2013Stripe: UK BNPL partnership noted in provided intelligence (public signal indicating Stripe is enabling BNPL integrations).",
+                          "source": "Provided news intelligence",
+                          "source_url": "Not available from current data."
+                        }
+                      ],
+                      "executive_summary": "High-priority initial discovery with Rahul Patil (CTO) to validate Stripe\u2019s immediate technical priorities for payments, align on measurable KPIs (authorization rate, latency, fraud loss, uptime), and propose a low-effort POC that demonstrates measurable impact on those KPIs. Goal: confirm stakeholders, success criteria, and an agreed POC timeline before leaving the call.",
+                      "risks_or_red_flags": [
+                        "Expect deep questions on pricing and explicit ROI \u2014 prepare numbers or frameworks. (Possible objection)",
+                        "Security/compliance gating (PCI, SOC, data residency) may block pilots without docs. (Red flag)",
+                        "High bar for engineering resources \u2014 POC must minimize lift. (Operational risk)",
+                        "Overlap with Stripe\u2019s internal roadmap or existing vendor commitments \u2014 potential to deprioritize vendor evaluation."
+                      ],
+                      "discovery_questions": [
+                        "What are your top three technical priorities for payments/checkout over the next 90 days?",
+                        "What KPIs does your team measure for success (authorization rate, latency, fraud loss, uptime)? What are current baselines?",
+                        "Where do you currently see the biggest pain in your payments stack (scaling, fraud, integration effort, cost)?",
+                        "Which teams and stakeholders will own evaluation and implementation? Who are the other decision-makers?",
+                        "What regulatory or data residency constraints must any new vendor meet?",
+                        "How much engineering effort can you allocate for a pilot/POC and what timeline is acceptable?",
+                        "Are there recent partnerships or product initiatives (eg. BNPL integrations) that change priorities or timelines?"
+                      ],
+                      "possible_pain_points": [
+                        "Integration complexity and required engineering effort.",
+                        "Security, privacy and PCI/regulatory constraints.",
+                        "Risk of performance impact (latency, throughput) from new integrations.",
+                        "Vendor lock-in and lack of long-term flexibility.",
+                        "Need for measurable ROI on authorization rate, fraud loss, conversion uplift."
+                      ],
+                      "inferred_recommendations": [
+                        "Prepare a 1\u20132 slide technical pattern showing integration points and expected impact on latency/throughput.",
+                        "Bring PCI/SOC and data-handling documentation to share immediately after the call.",
+                        "Predefine a low-effort POC scope with clear success metrics (authorization rate lift, fraud reduction, integration time) and an estimated minimal engineering effort requirement.",
+                        "Time-box the meeting and get agreement on next steps: POC scope, stakeholders, timeline, and delivery of compliance docs.",
+                        "If Rahul defers to others, ask for names/roles and request a short follow-up (15\u201330 min) with the implementation owners present."
+                      ],
+                      "recent_news_that_matters": [
+                        "Affirm \u2014 Stripe: UK BNPL partnership noted in provided intelligence (signals focus on enabling new payment methods and partner integrations)."
+                      ],
+                      "why_this_meeting_matters": "- Attendee is Stripe\u2019s CTO \u2014 conversation will determine technical fit and POC feasibility. (Verified)\n- Stripe is actively engaging partners for new payment flows (BNPL signal in provided intelligence) \u2014 creates urgency to support integrations without increasing risk. (Provided intelligence)\n- CTO-level buy-in is required to shorten evaluation cycles and to avoid overrun on engineering effort and compliance review.",
+                      "recommended_meeting_strategy": "1) Start: 3\u20135 minute agenda, confirm time and goals. 2) Validate: ask 2\u20133 KPI questions to set baselines. 3) Map: present 2\u20133 targeted value props that directly map to those KPIs (fraud reduction, authorization improvement, integration speed). 4) Evidence: show concise technical approach (architecture/integration patterns) and risk controls. 5) Close: propose a low-effort POC with success criteria, required stakeholders, and a target timeline; agree next steps and documentation delivery."
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "pinData": {},
+    "lastNodeExecuted": "Respond to Webhook"
+  },
+  "executionData": {
+    "contextData": {},
+    "nodeExecutionStack": [],
+    "metadata": {},
+    "waitingExecution": {},
+    "waitingExecutionSource": {},
+    "runtimeData": {
+      "version": 1,
+      "establishedAt": 1780685949538,
+      "source": "manual",
+      "redaction": {
+        "version": 1,
+        "policy": "none"
+      },
+      "triggerNode": {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook"
+      }
+    }
+  },
+  "resumeToken": "c6a0b5f1599f8704ad73043338c890262a678717305e60a8404ee3ac40f7ca4c",
+  "manualData": {
+    "userId": "8af8da72-09e8-430d-862f-31cc6dd9582c"
+  }
+}

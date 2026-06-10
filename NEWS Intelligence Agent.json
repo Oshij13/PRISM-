@@ -1,0 +1,180 @@
+{
+  "name": "NEWS Intelligence Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=(\"{{$json.company}}\") AND (earnings OR product OR AI OR expansion OR partnership OR acquisition)"
+            },
+            {
+              "name": "language",
+              "value": "en"
+            },
+            {
+              "name": "sortBy",
+              "value": "publishedAt"
+            },
+            {
+              "name": "pageSize",
+              "value": "5"
+            },
+            {
+              "name": "apiKey",
+              "value": "b20142d047d748f1b723ebeafb8be09a"
+            },
+            {
+              "name": "from",
+              "value": "2026-05-01"
+            },
+            {
+              "name": "searchIn",
+              "value": "title,description"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -912,
+        -224
+      ],
+      "id": "58296895-587e-48a6-ae5e-9160acb5113b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\n\"Analyze the following NewsAPI articles about \" + $('When Executed by Another Workflow').item.json.company + \" and create a sales meeting news intelligence brief.\" +\n\n\"\\n\\nAnalyze only articles directly relevant to \" + $('When Executed by Another Workflow').item.json.company + \".\" +\n\n\"\\n\\nIf fewer than 3 directly relevant articles exist, clearly state that the available news coverage is limited.\" +\n\n\"\\n\\nNews articles:\\n\" + JSON.stringify($json.articles)\n}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a helpful You are the PRISM News Intelligence Agent.\n\nYour task is to analyze recent company news before sales meetings.\n\nYou must:\n1. Identify major recent developments\n2. Detect positive business signals\n3. Detect risk signals\n4. Identify likely business priorities\n5. Suggest sales-relevant talking points\n6. Suggest questions a sales representative should ask\n\nRules:\n- Base your answer only on the provided news articles.\n- Do not invent facts.\n- If news data is weak or irrelevant, say so clearly.\n- Keep the output concise and structured.assistant\n\nReturn ONLY valid JSON matching the required schema.\n\nDo not return markdown.\nDo not use code blocks.\nDo not add explanations outside JSON."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -704,
+        -224
+      ],
+      "id": "a834fb99-b2c0-4cdf-8a6b-70cd48fb772e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        -16
+      ],
+      "id": "c2db941f-ee55-47cf-b094-c03dc5047192",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vtl1PWQS2Fyz539g",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"company\": \"\",\n  \"major_developments\": [],\n  \"positive_signals\": [],\n  \"risk_signals\": [],\n  \"business_priorities\": [],\n  \"talking_points\": [],\n  \"questions_to_ask\": [],\n  \"sources\": []\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -544,
+        -16
+      ],
+      "id": "73c458a8-9baa-48e0-ad31-1ba320eb2565",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1120,
+        -224
+      ],
+      "id": "5b2380f0-f999-41a1-847d-bc0ce6587045",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "df755a39-ddb7-497b-8c13-84823dd91f72",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "224fdf8041376944f42251b4b784fccf4fd8ad13f5a5802d21b36ef56245b093"
+  },
+  "id": "sLLnLwnWHUBtsR6T",
+  "tags": []
+}

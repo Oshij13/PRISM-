@@ -1,0 +1,265 @@
+{
+  "name": "Parent Orchestrator Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -112
+      ],
+      "id": "c390070c-1b2d-4771-8618-6f4cea23f6b4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UyTTPlektuM8OAE4",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/UyTTPlektuM8OAE4",
+          "cachedResultName": "Company Research Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        -144
+      ],
+      "id": "24fb4cfe-415b-4b78-86a1-88aa1629f981",
+      "name": "Call 'Company Research Agent'"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"company\": \"Zepto\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -896,
+        -224
+      ],
+      "id": "ef545274-7566-454f-b078-83d89ba057dd",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "sLLnLwnWHUBtsR6T",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/sLLnLwnWHUBtsR6T",
+          "cachedResultName": "NEWS Intelligence Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        -144
+      ],
+      "id": "b59b2d52-ac6e-4a3c-8729-5e0c71c2afe7",
+      "name": "Call 'NEWS Intelligence Agent'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c3d51f3-4b49-4c76-820f-436b5a645de2",
+              "name": "company",
+              "value": "={{ $json.output.company }}",
+              "type": "string"
+            },
+            {
+              "id": "12e5e72c-8ad5-4fba-b50f-0b8a95d57dae",
+              "name": "company_research",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "379dacc4-d2de-471b-a5c0-ecbd009eb5a1",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        -288
+      ],
+      "id": "d65282a7-6f90-4507-8632-bfbc5198c0c5",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5be5152-0405-449b-8b33-76d372054cb2",
+              "name": "company",
+              "value": "=={{ $('Edit Fields').item.json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "ad06fddb-fba3-449c-b148-e2cc3c8eca43",
+              "name": "company_research",
+              "value": "={{ $(\"Call 'Company Research Agent'\").item.json.output }}",
+              "type": "object"
+            },
+            {
+              "id": "cba52a86-58a8-48d6-86d1-35bec93d1bc2",
+              "name": "news_intelligence",
+              "value": "={{ $json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        -272
+      ],
+      "id": "60f08527-94b1-4647-87d2-3cec82cf64fc",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "DQUo9PkDTxDueIsx",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/DQUo9PkDTxDueIsx",
+          "cachedResultName": "Brief Generator Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        -160
+      ],
+      "id": "2156a871-a701-4add-b2e9-b629be1334e4",
+      "name": "Call 'Brief Generator Agent'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call 'Company Research Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Company Research Agent'": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Call 'NEWS Intelligence Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'NEWS Intelligence Agent'": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Call 'Brief Generator Agent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "942263c2-3fbe-48e2-b1ad-1117b2b27fe2",
+  "meta": {
+    "instanceId": "224fdf8041376944f42251b4b784fccf4fd8ad13f5a5802d21b36ef56245b093"
+  },
+  "id": "MDJmNwCRbwcLvNjd",
+  "tags": []
+}

@@ -1,0 +1,352 @@
+{
+  "version": 1,
+  "startData": {},
+  "resultData": {
+    "runData": {
+      "When Executed by Another Workflow": [
+        {
+          "startTime": 1780578802695,
+          "executionIndex": 0,
+          "source": [],
+          "hints": [],
+          "executionTime": 0,
+          "metadata": {
+            "parentExecution": {
+              "executionId": "176",
+              "workflowId": "MDJmNwCRbwcLvNjd",
+              "shouldResume": true,
+              "executionContext": {
+                "version": 1,
+                "establishedAt": 1780578802629,
+                "source": "webhook",
+                "redaction": {
+                  "version": 1,
+                  "policy": "none"
+                },
+                "triggerNode": {
+                  "name": "Webhook",
+                  "type": "n8n-nodes-base.webhook"
+                }
+              }
+            }
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "company": "{{ $json.body.companyName }}",
+                    "person_name": "{{ $json.body.personName }}",
+                    "role_title": "{{ $json.body.personTitle }}",
+                    "meeting_type": "{{ $json.body.meetingType }}",
+                    "meeting_goal": "{{ $json.body.meetingGoal }}",
+                    "priority": "{{ $json.body.priority }}"
+                  },
+                  "index": 0,
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "OpenAI Chat Model": [
+        {
+          "startTime": 1780578802707,
+          "executionTime": 9103,
+          "executionIndex": 2,
+          "executionStatus": "success",
+          "source": [
+            {
+              "previousNode": "AI Agent",
+              "previousNodeRun": 0
+            }
+          ],
+          "data": {
+            "ai_languageModel": [
+              [
+                {
+                  "json": {
+                    "response": {
+                      "generations": [
+                        [
+                          {
+                            "text": ""
+                          }
+                        ]
+                      ]
+                    },
+                    "tokenUsageEstimate": {
+                      "completionTokens": 0,
+                      "promptTokens": 225,
+                      "totalTokens": 225
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "inputOverride": {
+            "ai_languageModel": [
+              [
+                {
+                  "json": {
+                    "messages": [
+                      "System: You are the PRISM Company Research Agent.\n\nYour task is to analyze a company before a sales meeting.\n\nYou must identify:\n1. What the company does\n2. Main products and services\n3. Business model\n4. Target customers\n5. Competitive positioning\n6. Possible business pain points\n7. Growth opportunities\n8. Strategic talking points for a sales representative\n9. Suggested discovery questions\n\nRules:\n- Focus on business intelligence useful for enterprise sales conversations.\n- Keep outputs concise and structured.\n- Avoid generic descriptions.\n- Do not invent facts.\n- Return ONLY valid JSON matching the required schema.\n- Do not return markdown.\n- Do not use code blocks.\n\nIMPORTANT: For your response to user, you MUST use the `format_final_json_response` tool with your complete answer formatted according to the required schema. Do not attempt to format the JSON manually - always use this tool. Your response will be rejected if it is not properly formatted through this tool. Only use this tool once you are ready to provide your final answer.\nHuman: {{ \"Research the company: \" + $json.company }}"
+                    ],
+                    "estimatedTokens": 225,
+                    "options": {
+                      "openai_api_key": {
+                        "lc": 1,
+                        "type": "secret",
+                        "id": [
+                          "OPENAI_API_KEY"
+                        ]
+                      },
+                      "model": "gpt-5.5",
+                      "max_retries": 2,
+                      "configuration": {
+                        "defaultHeaders": {
+                          "openai-platform": "org-qkmJQuJ2WnvoIKMr2UJwIJkZ"
+                        },
+                        "baseURL": "https://api.openai.com/v1",
+                        "fetchOptions": {
+                          "dispatcher": {
+                            "_events": {},
+                            "_eventsCount": 0
+                          }
+                        }
+                      },
+                      "model_kwargs": {},
+                      "supports_strict_tool_calling": false,
+                      "use_responses_api": true
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "metadata": {
+            "subRun": [
+              {
+                "node": "OpenAI Chat Model",
+                "runIndex": 0
+              }
+            ]
+          }
+        }
+      ],
+      "Structured Output Parser": [
+        {
+          "startTime": 1780578811811,
+          "executionTime": 0,
+          "executionIndex": 3,
+          "executionStatus": "success",
+          "source": [
+            {
+              "previousNode": "AI Agent",
+              "previousNodeRun": 0
+            }
+          ],
+          "data": {
+            "ai_outputParser": [
+              [
+                {
+                  "json": {
+                    "action": "parse",
+                    "response": {
+                      "output": {
+                        "company": "Unknown - company name not provided",
+                        "company_overview": "No specific company name was provided in the request. Please provide the company name or domain to enable accurate business research.",
+                        "products_services": [],
+                        "business_model": "Unknown because the company was not specified.",
+                        "target_customers": [],
+                        "competitive_positioning": [],
+                        "pain_points": [
+                          "Unable to assess company-specific pain points without a company name or website."
+                        ],
+                        "growth_opportunities": [],
+                        "talking_points": [
+                          "Please share the target company name, website, or ticker symbol so the research can be completed accurately."
+                        ],
+                        "questions_to_ask": [
+                          "Which company should be researched?",
+                          "Do you have a company website, LinkedIn page, or ticker symbol to disambiguate the organization?",
+                          "Is this research intended for a specific sales motion, product line, or region?"
+                        ],
+                        "sources": [
+                          {
+                            "claim": "No company name was provided in the user request.",
+                            "source": "User request",
+                            "source_url": "",
+                            "confidence": "High"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            ]
+          },
+          "inputOverride": {
+            "ai_outputParser": [
+              [
+                {
+                  "json": {
+                    "action": "parse",
+                    "text": "{\"output\":{\"company\":\"Unknown - company name not provided\",\"company_overview\":\"No specific company name was provided in the request. Please provide the company name or domain to enable accurate business research.\",\"products_services\":[],\"business_model\":\"Unknown because the company was not specified.\",\"target_customers\":[],\"competitive_positioning\":[],\"pain_points\":[\"Unable to assess company-specific pain points without a company name or website.\"],\"growth_opportunities\":[],\"talking_points\":[\"Please share the target company name, website, or ticker symbol so the research can be completed accurately.\"],\"questions_to_ask\":[\"Which company should be researched?\",\"Do you have a company website, LinkedIn page, or ticker symbol to disambiguate the organization?\",\"Is this research intended for a specific sales motion, product line, or region?\"],\"sources\":[{\"claim\":\"No company name was provided in the user request.\",\"source\":\"User request\",\"source_url\":\"\",\"confidence\":\"High\"}]}}"
+                  }
+                }
+              ]
+            ]
+          },
+          "metadata": {
+            "subRun": [
+              {
+                "node": "Structured Output Parser",
+                "runIndex": 0
+              }
+            ]
+          }
+        }
+      ],
+      "AI Agent": [
+        {
+          "startTime": 1780578802695,
+          "executionIndex": 1,
+          "source": [
+            {
+              "previousNode": "When Executed by Another Workflow",
+              "previousNodeOutput": 0,
+              "previousNodeRun": 0
+            }
+          ],
+          "hints": [],
+          "executionTime": 9118,
+          "metadata": {
+            "tracing": {
+              "ai.agent.version": "v3",
+              "ai.agent.streaming.enabled": true,
+              "ai.agent.items.total": 1,
+              "ai.agent.items.failed": 0,
+              "ai.agent.tool_calls.requested": 0,
+              "ai.agent.tool_calls.completed": 0,
+              "ai.agent.iteration.count": 0,
+              "ai.agent.memory.loads": 0,
+              "ai.agent.memory.saves": 0,
+              "ai.agent.execution.succeeded": true
+            }
+          },
+          "executionStatus": "success",
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "output": {
+                      "company": "Unknown - company name not provided",
+                      "company_overview": "No specific company name was provided in the request. Please provide the company name or domain to enable accurate business research.",
+                      "products_services": [],
+                      "business_model": "Unknown because the company was not specified.",
+                      "target_customers": [],
+                      "competitive_positioning": [],
+                      "pain_points": [
+                        "Unable to assess company-specific pain points without a company name or website."
+                      ],
+                      "growth_opportunities": [],
+                      "talking_points": [
+                        "Please share the target company name, website, or ticker symbol so the research can be completed accurately."
+                      ],
+                      "questions_to_ask": [
+                        "Which company should be researched?",
+                        "Do you have a company website, LinkedIn page, or ticker symbol to disambiguate the organization?",
+                        "Is this research intended for a specific sales motion, product line, or region?"
+                      ],
+                      "sources": [
+                        {
+                          "claim": "No company name was provided in the user request.",
+                          "source": "User request",
+                          "source_url": "",
+                          "confidence": "High"
+                        }
+                      ]
+                    }
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "lastNodeExecuted": "AI Agent"
+  },
+  "executionData": {
+    "contextData": {},
+    "nodeExecutionStack": [],
+    "metadata": {
+      "OpenAI Chat Model": [
+        {
+          "subRun": [
+            {
+              "node": "OpenAI Chat Model",
+              "runIndex": 0
+            }
+          ]
+        }
+      ],
+      "Structured Output Parser": [
+        {
+          "subRun": [
+            {
+              "node": "Structured Output Parser",
+              "runIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    "waitingExecution": {},
+    "waitingExecutionSource": {},
+    "runtimeData": {
+      "version": 1,
+      "establishedAt": 1780578802695,
+      "source": "integrated",
+      "redaction": {
+        "version": 1,
+        "policy": "none"
+      },
+      "triggerNode": {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook"
+      },
+      "parentExecutionId": "176"
+    }
+  },
+  "parentExecution": {
+    "executionId": "176",
+    "workflowId": "MDJmNwCRbwcLvNjd",
+    "shouldResume": true,
+    "executionContext": {
+      "version": 1,
+      "establishedAt": 1780578802629,
+      "source": "webhook",
+      "redaction": {
+        "version": 1,
+        "policy": "none"
+      },
+      "triggerNode": {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook"
+      }
+    }
+  },
+  "resumeToken": "64e1915ef5a64de57a5c7c33d02a92326f49f4b5f8d2bc0db5cafff842cd3aaf"
+}

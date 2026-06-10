@@ -1,0 +1,4 @@
+﻿Latest Execution ID: 179 | Status: success | Workflow ID: ioTd3WM0Ev3Vcb27 | StartedAt: 2026-06-04 13:13:47.986
+Successfully loaded execution data.
+Exported resolved execution data to resolved_last_execution.json
+Nodes executed in this run: ['When Executed by Another Workflow', 'OpenAI Chat Model', 'Structured Output Parser', 'AI Agent']

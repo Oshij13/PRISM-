@@ -1,0 +1,122 @@
+{
+  "name": "Brief Generator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "06b807a0-72ba-45c7-96a1-13c8ec3fc5e7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\n\"Create a sales meeting brief using the following context.\" +\n\n\"\\n\\nCompany: \" + $json.company +\n\n\"\\n\\nCompany Research:\\n\" + JSON.stringify($json.company_research, null, 2) +\n\n\"\\n\\nNews Intelligence:\\n\" + JSON.stringify($json.news_intelligence, null, 2) +\n\n\"\\n\\nInstructions:\" +\n\"\\n- Focus on what a sales rep should know before the meeting.\" +\n\"\\n- Connect company facts to possible sales opportunities.\" +\n\"\\n- Turn recent news into practical conversation angles.\" +\n\"\\n- Include risks or objections the rep should prepare for.\" +\n\"\\n- Make discovery questions specific, not generic.\" +\n\"\\n- Keep the brief concise enough to read in under 3 minutes.\"\n}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the PRISM Meeting Brief Generator Agent.\n\nYour job is to create a high-stakes sales meeting brief for a sales representative.\n\nUse only the provided company research and news intelligence. Do not invent facts. If something is missing, say \"Not available from current data.\"\n\nPrioritize:\n1. Insights that help the rep open the conversation strongly\n2. Business changes that create urgency\n3. Pain points and buying triggers\n4. Risks, objections, or red flags\n5. Practical talking points and discovery questions\n\nAvoid generic company descriptions. Be concise, specific, and sales-focused.\n\nWrite in an executive briefing style:\n- clear\n- direct\n- strategic\n- no filler\n- no long paragraphs"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -272,
+        0
+      ],
+      "id": "62686bb0-e730-4f8c-a000-9f2595db8edc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"brief_title\": \"string\",\n  \"executive_summary\": \"string\",\n  \"why_this_meeting_matters\": \"string\",\n  \"company_context\": \"string\",\n  \"recent_news_that_matters\": [\"string\"],\n  \"sales_triggers\": [\"string\"],\n  \"possible_pain_points\": [\"string\"],\n  \"risks_or_red_flags\": [\"string\"],\n  \"talking_points\": [\"string\"],\n  \"discovery_questions\": [\"string\"],\n  \"recommended_meeting_strategy\": \"string\",\n  \"rep_focus\": \"string\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        160
+      ],
+      "id": "c0e17398-da6f-4f4f-9ccd-f7e7d81c0194",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        192
+      ],
+      "id": "a26fe022-22cb-4d1e-83a8-7ac772502773",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vtl1PWQS2Fyz539g",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "955fa21e-91cb-4652-a3ad-6a2659a664ee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "224fdf8041376944f42251b4b784fccf4fd8ad13f5a5802d21b36ef56245b093"
+  },
+  "id": "DQUo9PkDTxDueIsx",
+  "tags": []
+}
