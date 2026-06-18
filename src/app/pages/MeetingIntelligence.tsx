@@ -645,7 +645,7 @@ export function MeetingIntelligence() {
         personName = meeting.contactName || meeting.attendees?.[0]?.name || '';
         personTitle = meeting.contactRole || meeting.attendees?.[0]?.role || '';
         meetingType = meeting.meetingType || meeting.title || '';
-        meetingGoal = meeting.meetingType || meeting.title || '';
+        meetingGoal = meeting.meetingGoal || meeting.meetingType || meeting.title || '';
         priority = meeting.priority || 'medium';
       }
     } else {
@@ -653,7 +653,7 @@ export function MeetingIntelligence() {
       personName = m.contactName || m.attendees?.[0]?.name || '';
       personTitle = m.contactRole || m.attendees?.[0]?.role || '';
       meetingType = m.meetingType || m.title || '';
-      meetingGoal = m.meetingType || m.title || '';
+      meetingGoal = m.meetingGoal || m.meetingType || m.title || '';
       priority = m.priority || 'medium';
     }
 
@@ -670,11 +670,14 @@ export function MeetingIntelligence() {
         let checkedCount = 0;
         const interval = setInterval(async () => {
           checkedCount++;
-          let dbBrief = await supabaseService.getMeetingBriefByCompany(companyName.trim());
+          const mTime = m.created_at || (Number(m.id) > 1000000000000 ? Number(m.id) : 0);
+          let dbBrief = await supabaseService.getMeetingBriefByCompany(companyName.trim(), personName.trim(), mTime);
 
           if (!dbBrief) {
             try {
-              const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(companyName.trim())}*`;
+              const personFilter = personName.trim() ? `&person_name=ilike.*${encodeURIComponent(personName.trim())}*` : '';
+              const timeFilter = mTime ? `&created_at=gte.${encodeURIComponent(new Date(mTime - 5 * 60 * 1000).toISOString())}` : '';
+              const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(companyName.trim())}*${personFilter}${timeFilter}`;
               const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
               const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
               if (fallbackRes.ok) {
@@ -733,7 +736,7 @@ export function MeetingIntelligence() {
           const upcomingMeetings = userMeetings.filter((m: any) => {
             if (!m.date) return true;
             const dateStr = m.date.trim().toLowerCase();
-            if (dateStr === 'today' || dateStr === 'tomorrow') return true;
+            if (dateStr === 'today' || dateStr === 'tomorrow' || dateStr === 'day after tomorrow') return true;
             try {
               if (/^\d{4}-\d{2}-\d{2}$/.test(m.date.trim())) {
                 return m.date.trim() >= todayStr;
@@ -770,11 +773,15 @@ export function MeetingIntelligence() {
         }
 
         if (matchedMeeting) {
-          let dbBriefByCompany = await supabaseService.getMeetingBriefByCompany(matchedMeeting.company.trim());
+          const matchedPersonName = matchedMeeting.contactName || '';
+          const mTime = matchedMeeting.created_at || (Number(matchedMeeting.id) > 1000000000000 ? Number(matchedMeeting.id) : 0);
+          let dbBriefByCompany = await supabaseService.getMeetingBriefByCompany(matchedMeeting.company.trim(), matchedPersonName.trim(), mTime);
 
           if (!dbBriefByCompany) {
             try {
-              const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(matchedMeeting.company.trim())}*`;
+              const personFilter = matchedPersonName.trim() ? `&person_name=ilike.*${encodeURIComponent(matchedPersonName.trim())}*` : '';
+              const timeFilter = mTime ? `&created_at=gte.${encodeURIComponent(new Date(mTime - 5 * 60 * 1000).toISOString())}` : '';
+              const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(matchedMeeting.company.trim())}*${personFilter}${timeFilter}`;
               const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
               const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
               if (fallbackRes.ok) {

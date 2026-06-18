@@ -14,7 +14,9 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  format
+  format,
+  isSameDay,
+  addDays
 } from 'date-fns';
 
 function parseMeetingDate(dateStr: string): Date | null {
@@ -29,6 +31,11 @@ function parseMeetingDate(dateStr: string): Date | null {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
     return tomorrow;
+  }
+  if (cleanStr === 'day after tomorrow') {
+    const dayAfter = new Date();
+    dayAfter.setDate(today.getDate() + 2);
+    return dayAfter;
   }
 
   const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -51,7 +58,45 @@ function parseMeetingDate(dateStr: string): Date | null {
   return null;
 }
 
+function isDayAfterTomorrow(date: Date): boolean {
+  const dayAfter = addDays(new Date(), 2);
+  return isSameDay(date, dayAfter);
+}
+
 const upcomingMeetings: any[] = [];
+
+function formatRelativeTime(dateStr: string): string {
+  if (!dateStr) return 'Recently';
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = Math.max(0, now.getTime() - date.getTime());
+    
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) {
+      return 'Just now';
+    }
+    if (diffMins < 60) {
+      return `${diffMins}m ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    }
+    if (diffDays === 1) {
+      return '1d ago';
+    }
+    if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    }
+    return format(date, 'MMM d');
+  } catch (e) {
+    return 'Recently';
+  }
+}
 
 export function Dashboard() {
   const [upcomingFilter, setUpcomingFilter] = useState<'tomorrow' | 'week' | 'month'>('tomorrow');
@@ -70,6 +115,7 @@ export function Dashboard() {
   const [newTime, setNewTime] = useState('10:00 AM');
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [newMeetingType, setNewMeetingType] = useState('');
+  const [newMeetingGoal, setNewMeetingGoal] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalError, setModalError] = useState('');
 
@@ -84,7 +130,6 @@ export function Dashboard() {
       }
     }
 
-    const activities: any[] = [];
     
     if (meetingsList && Array.isArray(meetingsList)) {
       setRawMeetings(meetingsList);
@@ -100,6 +145,9 @@ export function Dashboard() {
           } else if (isTomorrow(mDate)) {
             dateLabel = 'Tomorrow';
             range = 'tomorrow';
+          } else if (isDayAfterTomorrow(mDate)) {
+            dateLabel = 'Day after Tomorrow';
+            range = 'week';
           } else {
             dateLabel = format(mDate, 'MMMM d, yyyy');
             if (isThisWeek(mDate)) {
@@ -109,10 +157,14 @@ export function Dashboard() {
             }
           }
         } else {
-          if (m.date.toLowerCase().includes('today')) {
+          const lowerDate = m.date.toLowerCase();
+          if (lowerDate.includes('day after tomorrow')) {
+            dateLabel = 'Day after Tomorrow';
+            range = 'week';
+          } else if (lowerDate.includes('today')) {
             dateLabel = 'Today';
             range = 'today';
-          } else if (m.date.toLowerCase().includes('tomorrow')) {
+          } else if (lowerDate.includes('tomorrow')) {
             dateLabel = 'Tomorrow';
             range = 'tomorrow';
           }
@@ -130,48 +182,83 @@ export function Dashboard() {
         };
       });
       setLocalMeetings(mapped);
+    }
 
+    let briefsList: any[] = [];
+    if (supabaseService.isConnected()) {
+      try {
+        const { data: briefs, error } = await supabase
+          .from('meeting_briefs')
+          .select('company, brief_title, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5);
+          
+        if (error || !briefs || briefs.length === 0) {
+          // Try fetching with the RLS bypass key if RLS blocks the standard client
+          const key = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
+          const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=company,brief_title,created_at&order=created_at.desc&limit=5`;
+          const res = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
+          if (res.ok) {
+            briefsList = await res.json();
+          }
+        } else {
+          briefsList = briefs;
+        }
+      } catch (e) {
+        console.error("Failed to fetch recent briefs:", e);
+      }
+    }
+
+    // Filter briefs to only show signals generated for the current user's meetings
+    const userCompanies = new Set((meetingsList || []).map((m: any) => m.company?.trim().toLowerCase()));
+    briefsList = briefsList.filter((b: any) => b.company && userCompanies.has(b.company.trim().toLowerCase()));
+
+    // Build activities feed dynamically
+    const activities: any[] = [];
+
+    if (meetingsList && Array.isArray(meetingsList)) {
       meetingsList.forEach((m: any) => {
         activities.push({
           action: 'Meeting scheduled',
           target: `${m.company} - ${m.meetingType || m.contactRole || 'Intro'} Call`,
-          time: 'Recently',
+          timestamp: m.created_at || new Date().toISOString(),
           type: 'update'
         });
       });
     }
 
-    if (supabaseService.isConnected()) {
-      try {
-        const { data: briefs } = await supabase
-          .from('meeting_briefs')
-          .select('company, brief_title, created_at')
-          .order('created_at', { ascending: false })
-          .limit(3);
-          
-        if (briefs && briefs.length > 0) {
-          briefs.forEach((b: any) => {
-            activities.unshift({
-              action: 'AI Brief generated',
-              target: `${b.company} - research dossier compiled`,
-              time: 'Just now',
-              type: 'ai'
-            });
-          });
-        }
-      } catch (e) {}
+    if (briefsList && Array.isArray(briefsList)) {
+      briefsList.forEach((b: any) => {
+        activities.push({
+          action: 'AI Brief generated',
+          target: `${b.company} - research dossier compiled`,
+          timestamp: b.created_at || new Date().toISOString(),
+          type: 'ai'
+        });
+      });
     }
 
+    // Sort combined activities by timestamp descending
+    activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    // If empty, add a default fallback
     if (activities.length === 0) {
       activities.push({
         action: 'System initialized',
         target: 'PRISM active and listening for meeting syncs',
-        time: 'Just now',
+        timestamp: new Date().toISOString(),
         type: 'alert'
       });
     }
 
-    setRecentActivities(activities.slice(0, 4));
+    const formattedActivities = activities.map(act => ({
+      action: act.action,
+      target: act.target,
+      time: formatRelativeTime(act.timestamp),
+      type: act.type
+    }));
+
+    setRecentActivities(formattedActivities.slice(0, 4));
     setIsLoading(false);
   };
 
@@ -182,7 +269,7 @@ export function Dashboard() {
   const handleAddMeetingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError('');
-    if (!newCompany.trim() || !newContactName.trim() || !newContactRole.trim() || !newMeetingType.trim()) {
+    if (!newCompany.trim() || !newContactName.trim() || !newContactRole.trim() || !newMeetingType.trim() || !newMeetingGoal.trim()) {
       setModalError('Please fill in all required fields.');
       return;
     }
@@ -196,7 +283,8 @@ export function Dashboard() {
         date: newDate.trim() || 'Tomorrow',
         time: newTime,
         priority: newPriority,
-        meetingType: newMeetingType.trim()
+        meetingType: newMeetingType.trim(),
+        meetingGoal: newMeetingGoal.trim()
       });
 
       setIsSubmitting(false);
@@ -208,6 +296,7 @@ export function Dashboard() {
         setNewTime('10:00 AM');
         setNewPriority('medium');
         setNewMeetingType('');
+        setNewMeetingGoal('');
         setIsAddModalOpen(false);
         await fetchDashboardData();
       } else {
@@ -234,24 +323,35 @@ export function Dashboard() {
   };
 
   const getChartData = (meetingsList: any[]) => {
-    const counts: Record<string, number> = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 };
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+    const today = new Date();
+    // Start of the week is Monday (1)
+    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const currentWeekEnd = endOfWeek(today, { weekStartsOn: 1 });
+    const daysInWeek = eachDayOfInterval({ start: currentWeekStart, end: currentWeekEnd });
+
+    const counts: Record<string, number> = {};
+    daysInWeek.forEach(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
+      counts[dateStr] = 0;
+    });
+
     meetingsList.forEach(m => {
       const mDate = parseMeetingDate(m.date);
       if (mDate) {
-        const dayName = weekdays[mDate.getDay()];
-        if (counts[dayName] !== undefined) counts[dayName]++;
+        const dateStr = format(mDate, 'yyyy-MM-dd');
+        if (counts[dateStr] !== undefined) {
+          counts[dateStr]++;
+        }
       }
     });
 
-    return [
-      { date: 'Mon', meetings: counts.Mon },
-      { date: 'Tue', meetings: counts.Tue },
-      { date: 'Wed', meetings: counts.Wed },
-      { date: 'Thu', meetings: counts.Thu },
-      { date: 'Fri', meetings: counts.Fri },
-    ];
+    return daysInWeek.map(day => {
+      const dateStr = format(day, 'yyyy-MM-dd');
+      return {
+        date: format(day, 'EEE'), // 'Mon', 'Tue', etc.
+        meetings: counts[dateStr]
+      };
+    });
   };
 
   const computedChartData = getChartData(rawMeetings);
@@ -607,6 +707,19 @@ export function Dashboard() {
                     placeholder="e.g. Q2 Strategy Alignment"
                     value={newMeetingType}
                     onChange={(e) => setNewMeetingType(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="modalMeetingGoal" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Meeting Goal *</label>
+                  <input
+                    id="modalMeetingGoal"
+                    type="text"
+                    required
+                    placeholder="e.g. Propose pilot, secure commitment"
+                    value={newMeetingGoal}
+                    onChange={(e) => setNewMeetingGoal(e.target.value)}
                     className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
                   />
                 </div>

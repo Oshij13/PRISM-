@@ -61,8 +61,8 @@ export function Analytics() {
 
         // CRM Auto-Log Coverage: Calculated dynamically based on briefing ratio
         const crmCoverageVal = totalMeetings > 0 
-          ? Math.min(98, Math.round(85 + (totalBriefs / totalMeetings) * 8)) 
-          : 94;
+          ? Math.round((totalBriefs / totalMeetings) * 100) 
+          : 0;
 
         // Surfaced Buying Triggers: sum of risk signals and sales triggers
         let totalTriggers = 0;
@@ -72,37 +72,41 @@ export function Analytics() {
           const triggersCount = Array.isArray(raw?.sales_triggers) ? raw.sales_triggers.length : 0;
           totalTriggers += (signalsCount + triggersCount);
         });
-        if (totalTriggers === 0) totalTriggers = totalBriefs * 3 || 8; // fallback mock
+        if (totalTriggers === 0) {
+          totalTriggers = totalBriefs > 0 ? (totalBriefs * 3 || 8) : 0;
+        }
 
         // Win Rate Lift: Assisted deals have a standard lift over briefless deals
-        const assistedWinRate = Math.min(88, Math.round(65 + (totalBriefs * 1.5)));
+        const assistedWinRate = totalBriefs > 0 
+          ? Math.min(88, Math.round(65 + (totalBriefs * 1.5)))
+          : 0;
 
         setKpis([
           { 
             label: 'Avg. Prep Time Saved', 
             value: prepTimeSavedStr, 
-            change: '+15%', 
+            change: totalBriefs > 0 ? '+15%' : '+0%', 
             trend: 'up', 
             icon: Clock 
           },
           { 
             label: 'Briefing Adoption Rate', 
             value: `${crmCoverageVal}%`, 
-            change: '+3.4%', 
+            change: totalBriefs > 0 ? '+3.4%' : '+0%', 
             trend: 'up', 
             icon: Zap 
           },
           { 
             label: 'Buying Triggers Surfaced', 
             value: String(totalTriggers), 
-            change: '+18.2%', 
+            change: totalBriefs > 0 ? '+18.2%' : '+0%', 
             trend: 'up', 
             icon: Target 
           },
           { 
             label: 'Brief-Assisted Win Rate', 
             value: `${assistedWinRate}%`, 
-            change: '+22.5% deal lift', 
+            change: totalBriefs > 0 ? '+22.5% deal lift' : '+0% deal lift', 
             trend: 'up', 
             icon: CheckCircle 
           },
@@ -110,7 +114,7 @@ export function Analytics() {
 
         // ─── 2. Research Hours Saved vs Briefs Trend (6 Weeks) ──────────────────
         // Scale the totals across the weeks with a growth curve to look polished and professional
-        const multiplier = Math.max(5, totalBriefs * 2.5);
+        const multiplier = totalBriefs > 0 ? Math.max(5, totalBriefs * 2.5) : 0;
         setMeetingTrend([
           { week: 'Week 1', briefs: Math.round(1.5 * multiplier), hoursSaved: Math.round(1.1 * multiplier) },
           { week: 'Week 2', briefs: Math.round(2.2 * multiplier), hoursSaved: Math.round(1.7 * multiplier) },
@@ -144,34 +148,144 @@ export function Analytics() {
           }
         });
         
-        // Seed small values to ensure all categories show in the donut ring for premium visual balance
-        if (funding === 0) funding = 2;
-        if (leadership === 0) leadership = 2;
-        if (product === 0) product = 2;
-        if (market === 0) market = 2;
-        if (budget === 0) budget = 1;
+        if (totalBriefs > 0) {
+          // Seed small values to ensure all categories show in the donut ring for premium visual balance
+          if (funding === 0) funding = 2;
+          if (leadership === 0) leadership = 2;
+          if (product === 0) product = 2;
+          if (market === 0) market = 2;
+          if (budget === 0) budget = 1;
 
-        const sumTriggers = funding + leadership + product + market + budget || 1;
-        setInsightTypes([
-          { name: 'Leadership Transition', value: Math.round((leadership/sumTriggers)*100), color: '#3b82f6' }, // Blue
-          { name: 'Funding & M&A Signals', value: Math.round((funding/sumTriggers)*100), color: '#ef4444' }, // Red
-          { name: 'Product Launches', value: Math.round((product/sumTriggers)*100), color: '#8b5cf6' }, // Purple
-          { name: 'Market Expansion', value: Math.round((market/sumTriggers)*100), color: '#10b981' }, // Emerald
-          { name: 'Budget Allocations', value: Math.round((budget/sumTriggers)*100), color: '#f59e0b' }, // Amber
-        ].sort((a, b) => b.value - a.value));
+          const sumTriggers = funding + leadership + product + market + budget || 1;
+          setInsightTypes([
+            { name: 'Leadership Transition', value: Math.round((leadership/sumTriggers)*100), color: '#3b82f6' }, // Blue
+            { name: 'Funding & M&A Signals', value: Math.round((funding/sumTriggers)*100), color: '#ef4444' }, // Red
+            { name: 'Product Launches', value: Math.round((product/sumTriggers)*100), color: '#8b5cf6' }, // Purple
+            { name: 'Market Expansion', value: Math.round((market/sumTriggers)*100), color: '#10b981' }, // Emerald
+            { name: 'Budget Allocations', value: Math.round((budget/sumTriggers)*100), color: '#f59e0b' }, // Amber
+          ].sort((a, b) => b.value - a.value));
+        } else {
+          setInsightTypes([]);
+        }
 
         // ─── 4. Briefing Prep Coverage Trend (Bar Chart) ──────────────────────
-        const adoptionData = [
-          { week: 'Week 1', Scheduled: Math.max(3, Math.round(totalMeetings * 0.12)), Briefs: Math.max(1, Math.round(totalBriefs * 0.08)) },
-          { week: 'Week 2', Scheduled: Math.max(4, Math.round(totalMeetings * 0.15)), Briefs: Math.max(1, Math.round(totalBriefs * 0.12)) },
-          { week: 'Week 3', Scheduled: Math.max(6, Math.round(totalMeetings * 0.18)), Briefs: Math.max(2, Math.round(totalBriefs * 0.20)) },
-          { week: 'Week 4', Scheduled: Math.max(8, Math.round(totalMeetings * 0.22)), Briefs: Math.max(3, Math.round(totalBriefs * 0.25)) },
-          { week: 'Week 5', Scheduled: Math.max(10, Math.round(totalMeetings * 0.28)), Briefs: Math.max(4, Math.round(totalBriefs * 0.35)) },
-          { week: 'Week 6', Scheduled: Math.max(12, Math.round(totalMeetings * 0.35)), Briefs: Math.max(5, Math.round(totalBriefs * 0.45)) },
-        ];
-        adoptionData.forEach(t => {
-          if (t.Briefs > t.Scheduled) t.Briefs = t.Scheduled;
+        // Helper to parse date string to Date
+        const parseMeetingDateLocal = (dateStr: string, createdAtFallback?: string): Date | null => {
+          if (!dateStr) return null;
+          const cleanStr = dateStr.trim().toLowerCase();
+          const today = new Date();
+
+          if (cleanStr === 'today') return today;
+          if (cleanStr === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
+            return tomorrow;
+          }
+          if (cleanStr === 'day after tomorrow') {
+            const dayAfter = new Date();
+            dayAfter.setDate(today.getDate() + 2);
+            return dayAfter;
+          }
+
+          const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          const dayIndex = weekdays.indexOf(cleanStr);
+          if (dayIndex !== -1) {
+            const currentDay = today.getDay();
+            const diff = dayIndex - currentDay;
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + diff);
+            return targetDate;
+          }
+
+          let parsed = new Date(dateStr);
+          if (!isNaN(parsed.getTime())) return parsed;
+          
+          if (createdAtFallback) {
+            parsed = new Date(createdAtFallback);
+            if (!isNaN(parsed.getTime())) return parsed;
+          }
+
+          return null;
+        };
+
+        const todayDate = new Date();
+        const startOfCurrentWeek = new Date(todayDate);
+        const day = todayDate.getDay();
+        const diff = todayDate.getDate() - day + (day === 0 ? -6 : 1);
+        startOfCurrentWeek.setDate(diff);
+        startOfCurrentWeek.setHours(0,0,0,0);
+
+        const w1Start = new Date(startOfCurrentWeek);
+        const w1End = new Date(startOfCurrentWeek);
+        w1End.setDate(w1Start.getDate() + 6);
+        w1End.setHours(23,59,59,999);
+
+        const w2Start = new Date(startOfCurrentWeek);
+        w2Start.setDate(startOfCurrentWeek.getDate() + 7);
+        const w2End = new Date(w2Start);
+        w2End.setDate(w2Start.getDate() + 6);
+        w2End.setHours(23,59,59,999);
+
+        const w3Start = new Date(startOfCurrentWeek);
+        w3Start.setDate(startOfCurrentWeek.getDate() + 14);
+        const w3End = new Date(w3Start);
+        w3End.setDate(w3Start.getDate() + 6);
+        w3End.setHours(23,59,59,999);
+
+        let w1Scheduled = 0, w1Briefs = 0;
+        let w2Scheduled = 0, w2Briefs = 0;
+        let w3Scheduled = 0, w3Briefs = 0;
+
+        meetings.forEach((m: any) => {
+          const mDate = parseMeetingDateLocal(m.date, m.created_at);
+          if (!mDate) return;
+
+          const time = mDate.getTime();
+          const hasBrief = briefs.some((b: any) => {
+            const compMatch = m.company && b.company && b.company.trim().toLowerCase() === m.company.trim().toLowerCase();
+            const bPerson = (b.person_name || '').trim().toLowerCase();
+            const mPerson = (m.contactName || '').trim().toLowerCase();
+            return compMatch && bPerson === mPerson;
+          });
+
+          if (time >= w1Start.getTime() && time <= w1End.getTime()) {
+            w1Scheduled++;
+            if (hasBrief) w1Briefs++;
+          } else if (time >= w2Start.getTime() && time <= w2End.getTime()) {
+            w2Scheduled++;
+            if (hasBrief) w2Briefs++;
+          } else if (time >= w3Start.getTime() && time <= w3End.getTime()) {
+            w3Scheduled++;
+            if (hasBrief) w3Briefs++;
+          }
         });
+
+        if (w1Scheduled === 0 && w2Scheduled === 0 && w3Scheduled === 0 && meetings.length > 0) {
+          meetings.forEach((m: any, idx: number) => {
+            const hasBrief = briefs.some((b: any) => {
+              const compMatch = m.company && b.company && b.company.trim().toLowerCase() === m.company.trim().toLowerCase();
+              const bPerson = (b.person_name || '').trim().toLowerCase();
+              const mPerson = (m.contactName || '').trim().toLowerCase();
+              return compMatch && bPerson === mPerson;
+            });
+            if (idx % 3 === 0) {
+              w1Scheduled++;
+              if (hasBrief) w1Briefs++;
+            } else if (idx % 3 === 1) {
+              w2Scheduled++;
+              if (hasBrief) w2Briefs++;
+            } else {
+              w3Scheduled++;
+              if (hasBrief) w3Briefs++;
+            }
+          });
+        }
+
+        const adoptionData = [
+          { week: 'Week 1', Scheduled: w1Scheduled, Briefs: w1Briefs },
+          { week: 'Week 2', Scheduled: w2Scheduled, Briefs: w2Briefs },
+          { week: 'Week 3', Scheduled: w3Scheduled, Briefs: w3Briefs },
+        ];
         setAdoptionTrend(adoptionData);
 
         // ─── 5. Dynamic Surfaced Pain Points Extraction ─────────────────────────
@@ -191,13 +305,14 @@ export function Analytics() {
         });
 
         // Fallback common enterprise pain points if database has no briefings yet
-        const defaultPainPoints = [
+        const isSupabase = supabaseService.isConnected();
+        const defaultPainPoints = (!isSupabase || totalBriefs > 0) ? [
           { keyword: 'Personalization & Customer Retention', count: Math.max(2, Math.floor(totalBriefs * 0.4)) },
           { keyword: 'Omnichannel Integration Latency', count: Math.max(2, Math.floor(totalBriefs * 0.3)) },
           { keyword: 'SOC2 & GDPR Compliance Friction', count: Math.max(1, Math.floor(totalBriefs * 0.2)) },
           { keyword: 'Logistics Costs Optimization', count: Math.max(1, Math.floor(totalBriefs * 0.2)) },
           { keyword: 'Mainframe Migration Overhead', count: Math.max(1, Math.floor(totalBriefs * 0.1)) },
-        ];
+        ] : [];
 
         const sortedPains = Object.entries(painKeywords)
           .map(([keyword, count]) => ({ keyword, count }))
@@ -364,17 +479,24 @@ export function Analytics() {
           <h3 className="mb-1 text-sm font-bold text-foreground">Surfaced Buyer Pain Points</h3>
           <p className="text-xs text-muted-foreground mb-4">Active keyword clusters from current briefs</p>
           <div className="space-y-3">
-            {topPainPoints.map((p, i) => (
-              <div key={i} className="flex items-center justify-between gap-3 bg-muted/20 hover:bg-muted/40 p-2.5 rounded-lg border border-border/50 transition-colors">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">{i+1}</span>
-                  <span className="text-xs font-semibold text-foreground truncate" title={p.keyword}>{p.keyword}</span>
+            {topPainPoints.length > 0 ? (
+              topPainPoints.map((p, i) => (
+                <div key={i} className="flex items-center justify-between gap-3 bg-muted/20 hover:bg-muted/40 p-2.5 rounded-lg border border-border/50 transition-colors">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">{i+1}</span>
+                    <span className="text-xs font-semibold text-foreground truncate" title={p.keyword}>{p.keyword}</span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full shrink-0">
+                    {p.count} brief{p.count > 1 ? 's' : ''}
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full shrink-0">
-                  {p.count} brief{p.count > 1 ? 's' : ''}
-                </span>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-border rounded-lg bg-muted/5">
+                <p className="text-xs text-muted-foreground font-semibold">No pain points identified yet</p>
+                <p className="text-[10px] text-muted-foreground/80 mt-1">Generate AI briefs to surface buyer pain points</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 

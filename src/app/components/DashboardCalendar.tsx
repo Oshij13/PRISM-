@@ -45,6 +45,13 @@ const isMeetingOnDate = (meetingDateStr: string, calendarDate: Date): boolean =>
     return isSameDay(calendarDate, tomorrow);
   }
   
+  // 2b. Check "day after tomorrow"
+  const dayAfter = new Date();
+  dayAfter.setDate(today.getDate() + 2);
+  if (cleanStr === 'day after tomorrow' || cleanStr === format(dayAfter, 'yyyy-MM-dd').toLowerCase()) {
+    return isSameDay(calendarDate, dayAfter);
+  }
+  
   // 3. Check weekday names (e.g. "monday", "tuesday", etc.)
   const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const dayIndex = weekdays.indexOf(cleanStr);

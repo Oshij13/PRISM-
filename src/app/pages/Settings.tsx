@@ -554,9 +554,10 @@ export function Settings() {
                 <button
                   onClick={async () => {
                     await supabaseService.signOut();
-                    navigate('/signin');
+                    window.location.href = '/signin';
                   }}
                   type="button"
+                  title="Sign out of your account"
                   className="mr-auto px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 dark:border-red-900/30 rounded-lg text-xs font-bold transition-all active:scale-98 cursor-pointer"
                 >
                   Sign Out

@@ -430,8 +430,8 @@ export function Sources() {
       let activeBriefs = briefs || [];
       let activeMeetings = meetings || [];
 
-      // Fall back to mock only if both are empty
-      if (activeBriefs.length === 0 && activeMeetings.length === 0) {
+      // Fall back to mock only if both are empty and we are not in Supabase mode
+      if (!supabaseService.isConnected() && activeBriefs.length === 0 && activeMeetings.length === 0) {
         activeBriefs = getAllMockBriefs();
       }
 
@@ -614,12 +614,6 @@ export function Sources() {
             className="flex items-center gap-2 px-4 py-2.5 border border-border bg-card rounded-xl hover:bg-muted/40 transition-all text-sm font-semibold text-foreground shadow-sm"
           >
             <Plus className="w-4 h-4" /> Add Source
-          </button>
-          <button
-            onClick={() => setRefreshKey(k => k + 1)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all text-sm font-semibold shadow-sm shadow-primary/20"
-          >
-            <Sparkles className="w-4 h-4" /> Refresh Intelligence
           </button>
         </div>
       </div>

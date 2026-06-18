@@ -8,6 +8,7 @@ function resolveMeetingDate(meeting: any, createdAtFallback?: string): string {
   if (
     cleanStr !== 'today' && 
     cleanStr !== 'tomorrow' && 
+    cleanStr !== 'day after tomorrow' && 
     !['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].includes(cleanStr)
   ) {
     return dateStr;
@@ -39,6 +40,15 @@ function resolveMeetingDate(meeting: any, createdAtFallback?: string): string {
     const yyyy = tomorrow.getFullYear();
     const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
     const dd = String(tomorrow.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  if (cleanStr === 'day after tomorrow') {
+    const dayAfter = new Date(baseDate);
+    dayAfter.setDate(baseDate.getDate() + 2);
+    const yyyy = dayAfter.getFullYear();
+    const mm = String(dayAfter.getMonth() + 1).padStart(2, '0');
+    const dd = String(dayAfter.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
   }
   
@@ -75,6 +85,7 @@ export interface UserProfile {
     time: string;
     priority?: string;
     meetingType?: string;
+    meetingGoal?: string;
   }>;
   slackAlerts?: boolean;
   emailBriefs?: boolean;
@@ -147,6 +158,9 @@ export const supabaseService = {
     fullName: string,
   ): Promise<{ success: boolean; error?: string; user?: any }> {
     console.log("[SupabaseService] signUp request for:", email);
+
+    // Clear any previous session first to prevent session/cache overlap
+    await this.signOut();
 
     if (!isSupabaseConfigured()) {
       console.warn(
@@ -242,6 +256,9 @@ export const supabaseService = {
     password: string,
   ): Promise<{ success: boolean; error?: string; user?: any }> {
     console.log("[SupabaseService] signIn request for:", email);
+
+    // Clear any previous session first to prevent session/cache overlap
+    await this.signOut();
 
     if (!isSupabaseConfigured()) {
       console.warn(
@@ -647,6 +664,8 @@ export const supabaseService = {
           time: m.time,
           priority: m.priority || "medium",
           meetingType: m.meeting_type || "",
+          created_at: m.created_at,
+          meetingGoal: m.meeting_goal || "",
         }));
       }
 
@@ -679,27 +698,55 @@ export const supabaseService = {
     }
     
     try {
+      let briefs: any[] = [];
       const { data, error } = await supabase
         .from('meeting_briefs')
         .select('*')
         .order('created_at', { ascending: false });
         
       if (!error && data && data.length > 0) {
-        return data;
-      }
-
-      console.log("[SupabaseService] No briefs returned via client. Trying RLS bypass key fallback...");
-      const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
-      const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&order=created_at.desc`;
-      const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
-      if (fallbackRes.ok) {
-        const fallbackData = await fallbackRes.json();
-        if (Array.isArray(fallbackData) && fallbackData.length > 0) {
-          console.log("[SupabaseService] Successfully fetched briefs via bypass key. Count:", fallbackData.length);
-          return fallbackData;
+        briefs = data;
+      } else {
+        console.log("[SupabaseService] No briefs returned via client. Trying RLS bypass key fallback...");
+        const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
+        const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&order=created_at.desc`;
+        const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+            console.log("[SupabaseService] Successfully fetched briefs via bypass key. Count:", fallbackData.length);
+            briefs = fallbackData;
+          }
+        } else {
+          briefs = data || [];
         }
       }
-      return data || [];
+
+      // Filter briefs by user meetings matching company AND person name strictly
+      const meetings = await supabaseService.getMeetings();
+      return briefs.filter((b: any) => {
+        if (!b.company) return false;
+        return meetings.some((m: any) => {
+          const compMatch = m.company && b.company.trim().toLowerCase() === m.company.trim().toLowerCase();
+          const bPerson = (b.person_name || '').trim().toLowerCase();
+          const mPerson = (m.contactName || '').trim().toLowerCase();
+          const personMatch = bPerson === mPerson;
+          
+          let mTime = 0;
+          if (m.created_at) {
+            mTime = new Date(m.created_at).getTime();
+          } else {
+            const idNum = Number(m.id);
+            if (!isNaN(idNum) && idNum > 1000000000000) {
+              mTime = idNum;
+            }
+          }
+          const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+          const timeMatch = !mTime || !bTime || (bTime >= mTime - 5 * 60 * 1000);
+          
+          return compMatch && personMatch && timeMatch;
+        });
+      });
     } catch (e) {
       console.error("[SupabaseService] Unexpected error fetching all meeting briefs:", e);
       return [];
@@ -714,7 +761,7 @@ export const supabaseService = {
   ): Promise<{ success: boolean; error?: string; data?: any }> {
     const meetingId = meeting.id || Date.now().toString();
     const resolvedDate = resolveMeetingDate({ id: meetingId, date: meeting.date });
-    const newMeeting = { ...meeting, id: meetingId, date: resolvedDate };
+    const newMeeting = { ...meeting, id: meetingId, date: resolvedDate, created_at: new Date().toISOString() };
 
     // Update local storage first for responsive UI
     const cached = localStorage.getItem("prism_user");
@@ -761,6 +808,7 @@ export const supabaseService = {
         time: meeting.time,
         priority: meeting.priority || "medium",
         meeting_type: meeting.meetingType,
+        meeting_goal: meeting.meetingGoal,
       };
 
       const { data, error } = await supabase
@@ -779,6 +827,7 @@ export const supabaseService = {
           time: data.time,
           priority: data.priority,
           meetingType: data.meeting_type,
+          meetingGoal: data.meeting_goal,
         };
 
         // Update cached meeting ID in local storage
@@ -912,6 +961,8 @@ export const supabaseService = {
         time: m.time,
         priority: m.priority || "medium",
         meeting_type: m.meetingType,
+        meeting_goal: m.meetingGoal,
+        created_at: m.created_at || new Date().toISOString(),
       }));
 
       const { error } = await supabase.from("meetings").insert(dbRows);
@@ -930,8 +981,8 @@ export const supabaseService = {
   /**
    * Fetch meeting brief from custom `meeting_briefs` table in Supabase (or localStorage fallback)
    */
-  async getMeetingBriefByCompany(companyName: string): Promise<any | null> {
-    console.log("[SupabaseService] getMeetingBriefByCompany:", companyName);
+  async getMeetingBriefByCompany(companyName: string, personName?: string, meetingCreatedAt?: string | number): Promise<any | null> {
+    console.log("[SupabaseService] getMeetingBriefByCompany:", companyName, personName, meetingCreatedAt);
 
     // Caching disabled for real-time orchestrator sync
 
@@ -940,10 +991,29 @@ export const supabaseService = {
     }
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("meeting_briefs")
         .select("*")
-        .ilike("company", `%${companyName}%`)
+        .ilike("company", `%${companyName}%`);
+
+      if (personName) {
+        query = query.ilike("person_name", `%${personName}%`);
+      }
+
+      if (meetingCreatedAt) {
+        let mTime = 0;
+        if (typeof meetingCreatedAt === 'number') {
+          mTime = meetingCreatedAt;
+        } else {
+          mTime = new Date(meetingCreatedAt).getTime();
+        }
+        if (!isNaN(mTime) && mTime > 0) {
+          const isoString = new Date(mTime - 5 * 60 * 1000).toISOString();
+          query = query.gte("created_at", isoString);
+        }
+      }
+
+      const { data, error } = await query
         .order("created_at", { ascending: false })
         .limit(1);
 

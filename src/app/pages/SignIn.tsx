@@ -8,7 +8,8 @@ import {
   ChevronRight,
   ShieldAlert,
   Clock,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 import { supabaseService } from '../../lib/supabaseService';
 
@@ -50,10 +51,10 @@ export function SignIn() {
         
         if (hasOnboarded) {
           localStorage.setItem('prism_onboarding_complete', 'true');
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         } else {
           localStorage.setItem('prism_onboarding_complete', 'false');
-          navigate('/onboarding');
+          window.location.href = '/onboarding';
         }
       } else {
         setErrorMsg(res.error || 'Invalid credentials or connection error.');
@@ -85,11 +86,11 @@ export function SignIn() {
         localStorage.setItem('prism_is_logged_in', 'true');
         const isOnboarded = localStorage.getItem('prism_onboarding_complete') === 'true';
         setIsSubmitting(false);
-
+ 
         if (isOnboarded) {
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         } else {
-          navigate('/onboarding');
+          window.location.href = '/onboarding';
         }
       }, 800);
     }
@@ -154,7 +155,17 @@ export function SignIn() {
       </div>
 
       {/* Right Column: Clean, Minimal Sign In Form */}
-      <div className="lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white">
+      <div className="lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white relative">
+        
+        {/* Go Back to Landing Page */}
+        <Link 
+          to="/" 
+          className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-1.5 text-xs font-extrabold text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-3.5 py-2 rounded-xl shadow-xs cursor-pointer select-none"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+          <span>Go Back</span>
+        </Link>
+
         <div className="w-full max-w-md">
           
           <div className="mb-8">
@@ -174,7 +185,7 @@ export function SignIn() {
             
             {/* Email Address */}
             <div>
-              <label htmlFor="email" className="text-xs font-extrabold text-slate-450 uppercase block mb-1">Email Address</label>
+              <label htmlFor="email" className="text-xs font-extrabold text-slate-400 uppercase block mb-1">Email Address</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Mail className="w-4 h-4" />
@@ -194,7 +205,7 @@ export function SignIn() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="password" className="text-xs font-extrabold text-slate-450 uppercase block">Password</label>
+                <label htmlFor="password" className="text-xs font-extrabold text-slate-400 uppercase block">Password</label>
                 <button
                   type="button"
                   onClick={() => {}}

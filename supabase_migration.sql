@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.meetings (
   time TEXT NOT NULL,
   priority TEXT DEFAULT 'medium',
   meeting_type TEXT,
+  meeting_goal TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

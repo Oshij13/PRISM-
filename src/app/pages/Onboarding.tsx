@@ -31,6 +31,8 @@ interface ManualMeeting {
   time: string;
   priority: 'low' | 'medium' | 'high';
   meetingType: string;
+  meetingGoal?: string;
+  created_at?: string;
 }
 
 export function Onboarding() {
@@ -46,28 +48,7 @@ export function Onboarding() {
   const [meetingsWeek, setMeetingsWeek] = useState('');
   
   // Meetings Management State
-  const [meetings, setMeetings] = useState<ManualMeeting[]>([
-    {
-      id: '1',
-      company: 'Tesla',
-      contactName: 'Sarah Johnson',
-      contactRole: 'VP Sales',
-      date: 'Tomorrow',
-      time: '11:00 AM',
-      priority: 'high',
-      meetingType: 'Q2 Strategy Review'
-    },
-    {
-      id: '2',
-      company: 'Microsoft',
-      contactName: 'David Miller',
-      contactRole: 'Director Partnerships',
-      date: 'Friday',
-      time: '3:00 PM',
-      priority: 'medium',
-      meetingType: 'Partnership Alignment'
-    }
-  ]);
+  const [meetings, setMeetings] = useState<ManualMeeting[]>([]);
 
   // Inline meeting editing state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -78,6 +59,7 @@ export function Onboarding() {
   const [editTime, setEditTime] = useState('10:00 AM');
   const [editPriority, setEditPriority] = useState<'low' | 'medium' | 'high'>('high');
   const [editMeetingType, setEditMeetingType] = useState('');
+  const [editMeetingGoal, setEditMeetingGoal] = useState('');
 
   // Meeting adding state
   const [isAdding, setIsAdding] = useState(false);
@@ -88,6 +70,7 @@ export function Onboarding() {
   const [newTime, setNewTime] = useState('10:00 AM');
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('high');
   const [newMeetingType, setNewMeetingType] = useState('');
+  const [newMeetingGoal, setNewMeetingGoal] = useState('');
 
   // Auto pre-fill values from signup if available
   useEffect(() => {
@@ -160,7 +143,7 @@ export function Onboarding() {
     if (step === 3 && !city.trim()) return true;
     if (step === 4 && (!age || parseInt(age) <= 0)) return true;
     if (step === 5 && !meetingsWeek) return true;
-    if (step === 6 && meetings.length === 0) return true;
+    // Allow users to skip or finish onboarding with 0 meetings to start clean
     return false;
   };
 
@@ -174,10 +157,11 @@ export function Onboarding() {
     setEditTime(m.time);
     setEditPriority(m.priority);
     setEditMeetingType(m.meetingType);
+    setEditMeetingGoal(m.meetingGoal || '');
   };
 
   const saveEdit = (id: string) => {
-    if (!editCompany.trim() || !editContact.trim() || !editRole.trim() || !editMeetingType.trim()) return;
+    if (!editCompany.trim() || !editContact.trim() || !editRole.trim() || !editMeetingType.trim() || !editMeetingGoal.trim()) return;
     setMeetings((prev) =>
       prev.map((m) =>
         m.id === id
@@ -189,7 +173,8 @@ export function Onboarding() {
               date: editDate,
               time: editTime,
               priority: editPriority,
-              meetingType: editMeetingType
+              meetingType: editMeetingType,
+              meetingGoal: editMeetingGoal
             }
           : m
       )
@@ -205,7 +190,7 @@ export function Onboarding() {
   // Adding manual meeting
   const addMeeting = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCompany.trim() || !newContact.trim() || !newRole.trim() || !newMeetingType.trim()) return;
+    if (!newCompany.trim() || !newContact.trim() || !newRole.trim() || !newMeetingType.trim() || !newMeetingGoal.trim()) return;
 
     const added: ManualMeeting = {
       id: Date.now().toString(),
@@ -215,7 +200,9 @@ export function Onboarding() {
       date: newDate || 'Tomorrow',
       time: newTime || '10:00 AM',
       priority: newPriority,
-      meetingType: newMeetingType
+      meetingType: newMeetingType,
+      meetingGoal: newMeetingGoal,
+      created_at: new Date().toISOString()
     };
 
     setMeetings((prev) => [...prev, added]);
@@ -226,6 +213,7 @@ export function Onboarding() {
     setNewTime('10:00 AM');
     setNewPriority('high');
     setNewMeetingType('');
+    setNewMeetingGoal('');
     setIsAdding(false);
   };
 
@@ -273,7 +261,7 @@ export function Onboarding() {
     await supabaseService.saveOnboardingMeetings(meetings);
     
     localStorage.setItem('prism_onboarding_complete', 'true');
-    navigate('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   // Render step elements
@@ -508,6 +496,17 @@ export function Onboarding() {
                     />
                   </div>
                   <div>
+                    <label className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Meeting Goal</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Propose pilot, secure commitment"
+                      value={newMeetingGoal}
+                      onChange={(e) => setNewMeetingGoal(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:border-red-600 outline-none"
+                    />
+                  </div>
+                  <div>
                     <label className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Priority</label>
                     <select
                       value={newPriority}
@@ -606,6 +605,16 @@ export function Onboarding() {
                     />
                   </div>
                   <div>
+                    <label className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Meeting Goal</label>
+                    <input
+                      type="text"
+                      required
+                      value={editMeetingGoal}
+                      onChange={(e) => setEditMeetingGoal(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:border-red-600 outline-none"
+                    />
+                  </div>
+                  <div>
                     <label className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Priority</label>
                     <select
                       value={editPriority}
@@ -691,6 +700,7 @@ export function Onboarding() {
                       </div>
                       <p className="text-[11px] font-semibold text-slate-500 mt-0.5 truncate">
                         {m.contactName} — <span className="italic">{m.contactRole}</span>
+                        {m.meetingGoal && <span className="text-slate-400 ml-2 border-l border-slate-200 pl-2">Goal: {m.meetingGoal}</span>}
                       </p>
                     </div>
                   </div>
@@ -709,7 +719,7 @@ export function Onboarding() {
                       onClick={() => deleteMeeting(m.id)}
                       disabled={isAdding || editingId !== null}
                       type="button"
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-450 hover:text-red-600 border border-slate-200/60 hover:bg-red-50/50 transition-colors disabled:opacity-40 cursor-pointer"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 border border-slate-200/60 hover:bg-red-50/50 transition-colors disabled:opacity-40 cursor-pointer"
                       title="Delete meeting"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

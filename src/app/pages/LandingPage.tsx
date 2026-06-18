@@ -778,7 +778,7 @@ export function LandingPage() {
           <div className="bg-white rounded-2xl border border-slate-200 max-w-2xl w-full p-6 shadow-2xl relative">
             <button
               onClick={() => setShowDemoModal(false)}
-              className="absolute top-4 right-4 text-slate-450 hover:text-slate-600 text-xl font-bold cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer"
             >
               ×
             </button>
@@ -796,7 +796,7 @@ export function LandingPage() {
               <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-600/30 scale-100 hover:scale-105 active:scale-95 transition-all cursor-pointer">
                 <Play className="w-6 h-6 fill-white text-white translate-x-0.5" />
               </div>
-              <p className="text-xs text-slate-450 font-mono mt-4">PRISM_Product_Tour_V1_2026.mp4 (02:45)</p>
+              <p className="text-xs text-slate-400 font-mono mt-4">PRISM_Product_Tour_V1_2026.mp4 (02:45)</p>
             </div>
 
             <div className="mt-6 flex justify-end gap-2">

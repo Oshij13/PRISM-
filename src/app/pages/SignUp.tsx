@@ -9,7 +9,8 @@ import {
   EyeOff,
   Check,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  ArrowLeft
 } from 'lucide-react';
 import { supabaseService } from '../../lib/supabaseService';
 
@@ -66,7 +67,7 @@ export function SignUp() {
       const res = await supabaseService.signUp(email, password, fullName);
       setIsSubmitting(false);
       if (res.success) {
-        navigate('/onboarding');
+        window.location.href = '/onboarding';
       } else {
         setErrorMsg(res.error || 'Registration failed.');
       }
@@ -106,7 +107,7 @@ export function SignUp() {
           meetings: []
         }));
         setIsSubmitting(false);
-        navigate('/onboarding');
+        window.location.href = '/onboarding';
       }, 800);
     }
   };
@@ -177,7 +178,17 @@ export function SignUp() {
       </div>
 
       {/* Right Column: Clean, Minimal Sign Up Form */}
-      <div className="lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white">
+      <div className="lg:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white relative">
+        
+        {/* Go Back to Landing Page */}
+        <Link 
+          to="/" 
+          className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-1.5 text-xs font-extrabold text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-3.5 py-2 rounded-xl shadow-xs cursor-pointer select-none"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+          <span>Go Back</span>
+        </Link>
+
         <div className="w-full max-w-md">
           
           <div className="mb-8">
