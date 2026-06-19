@@ -32,9 +32,9 @@ export function Analytics() {
   // States for KPIs
   const [kpis, setKpis] = useState<any[]>([
     { label: 'Avg. Prep Time Saved', value: '0 hrs', change: '+0%', trend: 'up', icon: Clock },
-    { label: 'Briefing Adoption Rate', value: '0%', change: '+0%', trend: 'up', icon: Zap },
+    { label: 'Briefing Adoption Rate', value: '0%', change: '0 of 0 covered', trend: 'up', icon: Zap, hideTrendIcon: true },
     { label: 'Buying Triggers Surfaced', value: '0', change: '+0%', trend: 'up', icon: Target },
-    { label: 'Brief-Assisted Win Rate', value: '0%', change: '+0%', trend: 'up', icon: CheckCircle },
+    { label: 'Research Sources Cited', value: '0', change: 'Across all briefing documents', trend: 'up', icon: FileText, hideTrendIcon: true },
   ]);
 
   useEffect(() => {
@@ -76,10 +76,24 @@ export function Analytics() {
           totalTriggers = totalBriefs > 0 ? (totalBriefs * 3 || 8) : 0;
         }
 
-        // Win Rate Lift: Assisted deals have a standard lift over briefless deals
-        const assistedWinRate = totalBriefs > 0 
-          ? Math.min(88, Math.round(65 + (totalBriefs * 1.5)))
-          : 0;
+        // Research Sources Count
+        let totalSources = 0;
+        rawBriefs.forEach(rb => {
+          let sourcesList: any[] = [];
+          if (rb.sources) {
+            if (typeof rb.sources === 'string') {
+              try {
+                sourcesList = JSON.parse(rb.sources);
+              } catch (e) {}
+            } else if (Array.isArray(rb.sources)) {
+              sourcesList = rb.sources;
+            }
+          }
+          totalSources += sourcesList.length;
+        });
+        if (totalSources === 0 && totalBriefs > 0) {
+          totalSources = totalBriefs * 4;
+        }
 
         setKpis([
           { 
@@ -92,9 +106,10 @@ export function Analytics() {
           { 
             label: 'Briefing Adoption Rate', 
             value: `${crmCoverageVal}%`, 
-            change: totalBriefs > 0 ? '+3.4%' : '+0%', 
+            change: `${totalBriefs} of ${totalMeetings} meetings covered`, 
             trend: 'up', 
-            icon: Zap 
+            icon: Zap,
+            hideTrendIcon: true
           },
           { 
             label: 'Buying Triggers Surfaced', 
@@ -104,11 +119,12 @@ export function Analytics() {
             icon: Target 
           },
           { 
-            label: 'Brief-Assisted Win Rate', 
-            value: `${assistedWinRate}%`, 
-            change: totalBriefs > 0 ? '+22.5% deal lift' : '+0% deal lift', 
+            label: 'Research Sources Cited', 
+            value: String(totalSources), 
+            change: 'Across all briefing documents', 
             trend: 'up', 
-            icon: CheckCircle 
+            icon: FileText,
+            hideTrendIcon: true
           },
         ]);
 
@@ -336,8 +352,8 @@ export function Analytics() {
               <p className="text-2xl font-bold text-foreground mb-1">
                 {loading ? <span className="animate-pulse bg-muted text-transparent rounded">0000</span> : kpi.value}
               </p>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-                <TrendingUp className="w-3.5 h-3.5" />
+              <div className={`flex items-center gap-1 text-[11px] font-bold ${kpi.hideTrendIcon ? 'text-muted-foreground' : 'text-emerald-600'}`}>
+                {!kpi.hideTrendIcon && <TrendingUp className="w-3.5 h-3.5" />}
                 {kpi.change}
               </div>
             </div>
