@@ -112,23 +112,16 @@ export function Analytics() {
           },
         ]);
 
-        // ─── 2. Define 6 Weeks Chronological Date Ranges Backwards ──────────────
+        // ─── 2. Define 6 Months Chronological Date Ranges Backwards ─────────────
         const today = new Date();
-        const MS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
+        const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         
-        const startOfCurrentWeek = new Date(today);
-        const currentDay = today.getDay();
-        const mondayDiff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
-        startOfCurrentWeek.setDate(mondayDiff);
-        startOfCurrentWeek.setHours(0, 0, 0, 0);
-
-        const weeks6 = Array.from({ length: 6 }).map((_, i) => {
-          const start = new Date(startOfCurrentWeek.getTime() - (5 - i) * MS_IN_WEEK);
-          const end = new Date(start.getTime() + MS_IN_WEEK - 1);
+        const months = Array.from({ length: 6 }).map((_, i) => {
+          const d = new Date(today.getFullYear(), today.getMonth() - (5 - i), 1);
           return {
-            name: `Week ${i + 1}`,
-            start,
-            end,
+            name: `${shortMonths[d.getMonth()]} ${d.getFullYear()}`,
+            monthIndex: d.getMonth(),
+            year: d.getFullYear(),
             briefs: 0,
             meetings: 0,
           };
@@ -173,46 +166,45 @@ export function Analytics() {
           return null;
         };
 
-        // ─── Group actual briefs and meetings into the 6 weeks ───────────────
+        // ─── Group actual briefs and meetings into the 6 months ──────────────
         briefs.forEach(b => {
           const raw = rawBriefs.find(rb => rb.id === b.id);
-          const bTime = raw && raw.created_at ? new Date(raw.created_at).getTime() : 0;
-          if (bTime > 0) {
-            for (const wk of weeks6) {
-              if (bTime >= wk.start.getTime() && bTime <= wk.end.getTime()) {
-                wk.briefs++;
-                break;
-              }
+          if (raw && raw.created_at) {
+            const bTime = new Date(raw.created_at);
+            const bMonth = bTime.getMonth();
+            const bYear = bTime.getFullYear();
+            const matchedMonth = months.find(m => m.monthIndex === bMonth && m.year === bYear);
+            if (matchedMonth) {
+              matchedMonth.briefs++;
             }
           }
         });
 
         meetings.forEach((m: any) => {
           const mDate = parseMeetingDateLocal(m.date, m.created_at);
-          const mTime = mDate ? mDate.getTime() : 0;
-          if (mTime > 0) {
-            for (const wk of weeks6) {
-              if (mTime >= wk.start.getTime() && mTime <= wk.end.getTime()) {
-                wk.meetings++;
-                break;
-              }
+          if (mDate) {
+            const mMonth = mDate.getMonth();
+            const mYear = mDate.getFullYear();
+            const matchedMonth = months.find(m => m.monthIndex === mMonth && m.year === mYear);
+            if (matchedMonth) {
+              matchedMonth.meetings++;
             }
           }
         });
 
-        // ─── Set Research Hours Saved vs Briefs Trend (6 Weeks) ────────────────
-        const meetingTrendData = weeks6.map(wk => ({
-          week: wk.name,
-          briefs: wk.briefs,
-          hoursSaved: Number((wk.briefs * 0.75).toFixed(1)) // 45 mins = 0.75 hrs
+        // ─── Set Research Hours Saved vs Briefs Trend (6 Months) ───────────────
+        const meetingTrendData = months.map(m => ({
+          month: m.name,
+          briefs: m.briefs,
+          hoursSaved: Number((m.briefs * 0.75).toFixed(1)) // 45 mins = 0.75 hrs
         }));
         setMeetingTrend(meetingTrendData);
 
-        // ─── Set Briefing Prep Coverage Trend (Bar Chart, last 3 Weeks) ─────────
-        const adoptionData = weeks6.slice(3).map((wk, idx) => ({
-          week: `Week ${idx + 1}`,
-          Briefs: wk.briefs,
-          Scheduled: wk.meetings
+        // ─── Set Briefing Prep Coverage Trend (Bar Chart, 6 Months) ────────────
+        const adoptionData = months.map(m => ({
+          month: m.name,
+          Briefs: m.briefs,
+          Scheduled: m.meetings
         }));
         setAdoptionTrend(adoptionData);
 
@@ -358,7 +350,7 @@ export function Analytics() {
         {/* Research Hours Recovered (Area Chart) */}
         <div className="lg:col-span-2 bg-card rounded-xl border border-border p-6">
           <h3 className="mb-1 text-sm font-bold text-foreground">Prep Efficiency & Research Time Recovered</h3>
-          <p className="text-xs text-muted-foreground mb-5">Hours saved vs. AI briefs reviewed weekly</p>
+          <p className="text-xs text-muted-foreground mb-5">Hours saved vs. AI briefs reviewed monthly</p>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={meetingTrend}>
               <defs>
@@ -372,7 +364,7 @@ export function Analytics() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="week" stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
+              <XAxis dataKey="month" stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
               <YAxis stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
               <Tooltip />
               <Legend />
@@ -425,11 +417,11 @@ export function Analytics() {
         {/* Briefing Prep Coverage Trend (Bar Chart) */}
         <div className="bg-card rounded-xl border border-border p-6">
           <h3 className="mb-1 text-sm font-bold text-foreground">Briefing Prep Coverage Trend</h3>
-          <p className="text-xs text-muted-foreground mb-5">AI briefs generated vs. scheduled meetings weekly</p>
+          <p className="text-xs text-muted-foreground mb-5">AI briefs generated vs. scheduled meetings monthly</p>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={adoptionTrend} barGap={4} barSize={20}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="week" stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
+              <XAxis dataKey="month" stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
               <YAxis stroke="#999" tick={{ fontSize: 11, fontWeight: 'bold' }} />
               <Tooltip />
               <Legend />
