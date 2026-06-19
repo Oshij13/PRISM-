@@ -48,7 +48,32 @@ export function Onboarding() {
   const [meetingsWeek, setMeetingsWeek] = useState('');
   
   // Meetings Management State
-  const [meetings, setMeetings] = useState<ManualMeeting[]>([]);
+  const [meetings, setMeetings] = useState<ManualMeeting[]>([
+    {
+      id: '1',
+      company: 'Tesla',
+      contactName: 'Sarah Johnson',
+      contactRole: 'VP Sales',
+      date: 'Tomorrow',
+      time: '11:00 AM',
+      priority: 'high',
+      meetingType: 'Q2 Strategy Review',
+      meetingGoal: 'Discuss expansion of strategic sales initiatives',
+      created_at: new Date().toISOString()
+    },
+    {
+      id: '2',
+      company: 'Microsoft',
+      contactName: 'David Miller',
+      contactRole: 'Director Partnerships',
+      date: 'Friday',
+      time: '3:00 PM',
+      priority: 'medium',
+      meetingType: 'Partnership Alignment',
+      meetingGoal: 'Establish alignment on joint integration offerings',
+      created_at: new Date().toISOString()
+    }
+  ]);
 
   // Inline meeting editing state
   const [editingId, setEditingId] = useState<string | null>(null);
