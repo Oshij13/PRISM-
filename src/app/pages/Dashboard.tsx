@@ -458,10 +458,7 @@ export function Dashboard() {
           </div>
           
           <div className="relative flex-1">
-            {/* Vertical timeline connector line */}
-            <div className="absolute left-5 top-2 bottom-2 w-0.5 bg-border/70 dark:bg-border/30 z-0" />
-            
-            <div className="space-y-5 relative z-10">
+            <div className="space-y-5 relative">
               {recentActivities.map((item, idx) => {
                 let iconColor = "";
                 let IconComponent = Sparkles;
@@ -481,7 +478,11 @@ export function Dashboard() {
                 }
 
                 return (
-                  <div key={idx} className="flex gap-4 group/activity items-start">
+                  <div key={idx} className="flex gap-4 group/activity items-start relative">
+                    {/* Vertical timeline connector line segment */}
+                    {idx < recentActivities.length - 1 && (
+                      <div className="absolute left-5 top-10 bottom-0 w-0.5 bg-border/70 dark:bg-border/30 z-0" />
+                    )}
                     {/* Glowing Circular Icon Container */}
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border z-10 transition-all duration-300 group-hover/activity:scale-110 group-hover/activity:shadow-sm ${iconColor}`}>
                       <IconComponent className="w-4 h-4" />
