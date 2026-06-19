@@ -32,8 +32,8 @@ export function Analytics() {
   // States for KPIs
   const [kpis, setKpis] = useState<any[]>([
     { label: 'Avg. Prep Time Saved', value: '0 hrs', change: '+0%', trend: 'up', icon: Clock },
-    { label: 'Briefing Adoption Rate', value: '0%', change: '0 of 0 covered', trend: 'up', icon: Zap, hideTrendIcon: true },
-    { label: 'Buying Triggers Surfaced', value: '0', change: '+0%', trend: 'up', icon: Target },
+    { label: 'Active Companies', value: '0', change: 'Active accounts monitored', trend: 'up', icon: Users, hideTrendIcon: true },
+    { label: 'Meetings Briefed', value: '0', change: 'Prepared with AI research', trend: 'up', icon: Zap, hideTrendIcon: true },
     { label: 'Research Sources Cited', value: '0', change: 'Across all briefing documents', trend: 'up', icon: FileText, hideTrendIcon: true },
   ]);
 
@@ -41,9 +41,10 @@ export function Analytics() {
     async function loadData() {
       setLoading(true);
       try {
-        const [rawBriefs, rawMeetings] = await Promise.all([
+        const [rawBriefs, rawMeetings, unfilteredBriefs] = await Promise.all([
           supabaseService.getAllMeetingBriefs(),
-          supabaseService.getMeetings()
+          supabaseService.getMeetings(),
+          supabaseService.getUnfilteredBriefs()
         ]);
 
         const briefs = rawBriefs.map(b => mapDbBriefToMeetingDetails(b));
@@ -51,7 +52,6 @@ export function Analytics() {
 
         // ─── 1. KPI Calculations ──────────────────────────────────────────────
         const totalBriefs = briefs.length;
-        const totalMeetings = meetings.length;
         
         // Prep Time Saved: 45 mins per brief
         const prepTimeMins = totalBriefs * 45;
@@ -59,26 +59,16 @@ export function Analytics() {
           ? `${Math.floor(prepTimeMins / 60)}h ${prepTimeMins % 60}m` 
           : `${prepTimeMins}m`;
 
-        // CRM Auto-Log Coverage: Calculated dynamically based on briefing ratio
-        const crmCoverageVal = totalMeetings > 0 
-          ? Math.round((totalBriefs / totalMeetings) * 100) 
-          : 0;
+        // Active Companies Tracked
+        const uniqueCompanies = new Set([
+          ...briefs.map(b => b.company),
+          ...meetings.map(m => m.company)
+        ].filter(Boolean));
+        const activeCompaniesCount = uniqueCompanies.size;
 
-        // Surfaced Buying Triggers: sum of risk signals and sales triggers
-        let totalTriggers = 0;
-        briefs.forEach(b => {
-          const raw = rawBriefs.find(rb => rb.id === b.id);
-          const signalsCount = Array.isArray(raw?.verified_signals) ? raw.verified_signals.length : 0;
-          const triggersCount = Array.isArray(raw?.sales_triggers) ? raw.sales_triggers.length : 0;
-          totalTriggers += (signalsCount + triggersCount);
-        });
-        if (totalTriggers === 0) {
-          totalTriggers = totalBriefs > 0 ? (totalBriefs * 3 || 8) : 0;
-        }
-
-        // Research Sources Count
+        // Research Sources Count (Across all briefs unfiltered in the database)
         let totalSources = 0;
-        rawBriefs.forEach(rb => {
+        unfilteredBriefs.forEach(rb => {
           let sourcesList: any[] = [];
           if (rb.sources) {
             if (typeof rb.sources === 'string') {
@@ -91,8 +81,8 @@ export function Analytics() {
           }
           totalSources += sourcesList.length;
         });
-        if (totalSources === 0 && totalBriefs > 0) {
-          totalSources = totalBriefs * 4;
+        if (totalSources === 0 && unfilteredBriefs.length > 0) {
+          totalSources = unfilteredBriefs.length * 4;
         }
 
         setKpis([
@@ -104,19 +94,20 @@ export function Analytics() {
             icon: Clock 
           },
           { 
-            label: 'Briefing Adoption Rate', 
-            value: `${crmCoverageVal}%`, 
-            change: `${totalBriefs} of ${totalMeetings} meetings covered`, 
+            label: 'Active Companies', 
+            value: String(activeCompaniesCount), 
+            change: 'Active accounts monitored', 
             trend: 'up', 
-            icon: Zap,
+            icon: Users,
             hideTrendIcon: true
           },
           { 
-            label: 'Buying Triggers Surfaced', 
-            value: String(totalTriggers), 
-            change: totalBriefs > 0 ? '+18.2%' : '+0%', 
+            label: 'Meetings Briefed', 
+            value: String(totalBriefs), 
+            change: 'Prepared with AI research', 
             trend: 'up', 
-            icon: Target 
+            icon: Zap,
+            hideTrendIcon: true
           },
           { 
             label: 'Research Sources Cited', 

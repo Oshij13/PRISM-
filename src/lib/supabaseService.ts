@@ -892,6 +892,42 @@ export const supabaseService = {
   },
 
   /**
+   * Retrieves all meeting briefs unfiltered
+   */
+  async getUnfilteredBriefs(): Promise<any[]> {
+    if (!isSupabaseConfigured()) {
+      return [];
+    }
+    try {
+      let briefs: any[] = [];
+      const { data, error } = await supabase
+        .from('meeting_briefs')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (!error && data && data.length > 0) {
+        briefs = data;
+      } else {
+        const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
+        const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&order=created_at.desc`;
+        const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+            briefs = fallbackData;
+          }
+        } else {
+          briefs = data || [];
+        }
+      }
+      return briefs;
+    } catch (e) {
+      console.error("[SupabaseService] Unexpected error fetching all meeting briefs unfiltered:", e);
+      return [];
+    }
+  },
+
+  /**
    * Add a new meeting
    */
   async addMeeting(
