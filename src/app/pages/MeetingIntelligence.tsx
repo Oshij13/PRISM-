@@ -676,7 +676,8 @@ export function MeetingIntelligence() {
           if (!dbBrief) {
             try {
               const personFilter = personName.trim() ? `&person_name=ilike.*${encodeURIComponent(personName.trim())}*` : '';
-              const timeFilter = mTime ? `&created_at=gte.${encodeURIComponent(new Date(mTime - 5 * 60 * 1000).toISOString())}` : '';
+              const parsedMTime = typeof mTime === 'number' ? mTime : new Date(mTime).getTime();
+              const timeFilter = !isNaN(parsedMTime) && parsedMTime > 0 ? `&created_at=gte.${encodeURIComponent(new Date(parsedMTime - 5 * 60 * 1000).toISOString())}` : '';
               const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(companyName.trim())}*${personFilter}${timeFilter}`;
               const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
               const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
@@ -699,7 +700,7 @@ export function MeetingIntelligence() {
               setTriggeringN8n(false);
               setN8nStatus('Error displaying generated data. Check console.');
             }
-          } else if (checkedCount >= 40) {
+          } else if (checkedCount >= 100) { // 100 checks * 3s = 5 minutes
             clearInterval(interval);
             setTriggeringN8n(false);
             setN8nStatus('Research Agent triggered, but database sync took too long. Refresh or click retry.');
@@ -780,7 +781,8 @@ export function MeetingIntelligence() {
           if (!dbBriefByCompany) {
             try {
               const personFilter = matchedPersonName.trim() ? `&person_name=ilike.*${encodeURIComponent(matchedPersonName.trim())}*` : '';
-              const timeFilter = mTime ? `&created_at=gte.${encodeURIComponent(new Date(mTime - 5 * 60 * 1000).toISOString())}` : '';
+              const parsedMTime = typeof mTime === 'number' ? mTime : new Date(mTime).getTime();
+              const timeFilter = !isNaN(parsedMTime) && parsedMTime > 0 ? `&created_at=gte.${encodeURIComponent(new Date(parsedMTime - 5 * 60 * 1000).toISOString())}` : '';
               const url = `https://dgopgdfvsbaucsjejimk.supabase.co/rest/v1/meeting_briefs?select=*&company=ilike.*${encodeURIComponent(matchedMeeting.company.trim())}*${personFilter}${timeFilter}`;
               const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnb3BnZGZ2c2JhdWNzamVqaW1rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc3MTg4NiwiZXhwIjoyMDk1MzQ3ODg2fQ.P7_Y-rYwi3ITA7p8FsD3a1Kd14z8qg83lUbTb3tn-dc';
               const fallbackRes = await fetch(url, { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } });
@@ -1075,7 +1077,14 @@ export function MeetingIntelligence() {
         <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Sparkles className="w-4 h-4 text-primary animate-spin flex-shrink-0" />
-            <span className="text-sm font-bold text-primary">{n8nStatus}</span>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-bold text-primary">{n8nStatus}</span>
+              {triggeringN8n && (
+                <span className="text-xs text-muted-foreground font-medium">
+                  💡 Note: Multi-agent research and brief compilation can take up to 5 minutes to complete.
+                </span>
+              )}
+            </div>
           </div>
           {triggeringN8n && (
             <span className="text-xs font-mono font-bold text-primary/80 bg-primary/10 px-3 py-1 rounded-md border border-primary/20">
