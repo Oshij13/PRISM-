@@ -112,17 +112,109 @@ export function Analytics() {
           },
         ]);
 
-        // ─── 2. Research Hours Saved vs Briefs Trend (6 Weeks) ──────────────────
-        // Scale the totals across the weeks with a growth curve to look polished and professional
-        const multiplier = totalBriefs > 0 ? Math.max(5, totalBriefs * 2.5) : 0;
-        setMeetingTrend([
-          { week: 'Week 1', briefs: Math.round(1.5 * multiplier), hoursSaved: Math.round(1.1 * multiplier) },
-          { week: 'Week 2', briefs: Math.round(2.2 * multiplier), hoursSaved: Math.round(1.7 * multiplier) },
-          { week: 'Week 3', briefs: Math.round(3.5 * multiplier), hoursSaved: Math.round(2.8 * multiplier) },
-          { week: 'Week 4', briefs: Math.round(4.8 * multiplier), hoursSaved: Math.round(3.9 * multiplier) },
-          { week: 'Week 5', briefs: Math.round(6.2 * multiplier), hoursSaved: Math.round(5.3 * multiplier) },
-          { week: 'Week 6', briefs: Math.round(8.5 * multiplier), hoursSaved: Math.round(7.6 * multiplier) },
-        ]);
+        // ─── 2. Define 6 Weeks Chronological Date Ranges Backwards ──────────────
+        const today = new Date();
+        const MS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
+        
+        const startOfCurrentWeek = new Date(today);
+        const currentDay = today.getDay();
+        const mondayDiff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+        startOfCurrentWeek.setDate(mondayDiff);
+        startOfCurrentWeek.setHours(0, 0, 0, 0);
+
+        const weeks6 = Array.from({ length: 6 }).map((_, i) => {
+          const start = new Date(startOfCurrentWeek.getTime() - (5 - i) * MS_IN_WEEK);
+          const end = new Date(start.getTime() + MS_IN_WEEK - 1);
+          return {
+            name: `Week ${i + 1}`,
+            start,
+            end,
+            briefs: 0,
+            meetings: 0,
+          };
+        });
+
+        // ─── Helper to parse date string to Date ───────────────────────────────
+        const parseMeetingDateLocal = (dateStr: string, createdAtFallback?: string): Date | null => {
+          if (!dateStr) return null;
+          const cleanStr = dateStr.trim().toLowerCase();
+          const todayDate = new Date();
+
+          if (cleanStr === 'today') return todayDate;
+          if (cleanStr === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(todayDate.getDate() + 1);
+            return tomorrow;
+          }
+          if (cleanStr === 'day after tomorrow') {
+            const dayAfter = new Date();
+            dayAfter.setDate(todayDate.getDate() + 2);
+            return dayAfter;
+          }
+
+          const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          const dayIndex = weekdays.indexOf(cleanStr);
+          if (dayIndex !== -1) {
+            const currentDayNum = todayDate.getDay();
+            const diffDays = dayIndex - currentDayNum;
+            const targetDate = new Date(todayDate);
+            targetDate.setDate(todayDate.getDate() + diffDays);
+            return targetDate;
+          }
+
+          let parsed = new Date(dateStr);
+          if (!isNaN(parsed.getTime())) return parsed;
+          
+          if (createdAtFallback) {
+            parsed = new Date(createdAtFallback);
+            if (!isNaN(parsed.getTime())) return parsed;
+          }
+
+          return null;
+        };
+
+        // ─── Group actual briefs and meetings into the 6 weeks ───────────────
+        briefs.forEach(b => {
+          const raw = rawBriefs.find(rb => rb.id === b.id);
+          const bTime = raw && raw.created_at ? new Date(raw.created_at).getTime() : 0;
+          if (bTime > 0) {
+            for (const wk of weeks6) {
+              if (bTime >= wk.start.getTime() && bTime <= wk.end.getTime()) {
+                wk.briefs++;
+                break;
+              }
+            }
+          }
+        });
+
+        meetings.forEach((m: any) => {
+          const mDate = parseMeetingDateLocal(m.date, m.created_at);
+          const mTime = mDate ? mDate.getTime() : 0;
+          if (mTime > 0) {
+            for (const wk of weeks6) {
+              if (mTime >= wk.start.getTime() && mTime <= wk.end.getTime()) {
+                wk.meetings++;
+                break;
+              }
+            }
+          }
+        });
+
+        // ─── Set Research Hours Saved vs Briefs Trend (6 Weeks) ────────────────
+        const meetingTrendData = weeks6.map(wk => ({
+          week: wk.name,
+          briefs: wk.briefs,
+          hoursSaved: Number((wk.briefs * 0.75).toFixed(1)) // 45 mins = 0.75 hrs
+        }));
+        setMeetingTrend(meetingTrendData);
+
+        // ─── Set Briefing Prep Coverage Trend (Bar Chart, last 3 Weeks) ─────────
+        const adoptionData = weeks6.slice(3).map((wk, idx) => ({
+          week: `Week ${idx + 1}`,
+          Briefs: wk.briefs,
+          Scheduled: wk.meetings
+        }));
+        setAdoptionTrend(adoptionData);
 
         // ─── 3. Buyer Intent Trigger Breakdown (Donut Chart) ───────────────────
         let funding = 0, leadership = 0, product = 0, market = 0, budget = 0;
@@ -138,7 +230,6 @@ export function Analytics() {
           if (text.includes('budget') || text.includes('revenue') || text.includes('cost') || text.includes('spend')) { budget++; matched = true; }
           
           if (!matched) {
-            // Distribute unmatched briefs consistently using character code modulo
             const hash = b.id ? b.id.charCodeAt(0) % 5 : Math.floor(Math.random() * 5);
             if (hash === 0) funding++;
             else if (hash === 1) leadership++;
@@ -149,13 +240,6 @@ export function Analytics() {
         });
         
         if (totalBriefs > 0) {
-          // Seed small values to ensure all categories show in the donut ring for premium visual balance
-          if (funding === 0) funding = 2;
-          if (leadership === 0) leadership = 2;
-          if (product === 0) product = 2;
-          if (market === 0) market = 2;
-          if (budget === 0) budget = 1;
-
           const sumTriggers = funding + leadership + product + market + budget || 1;
           setInsightTypes([
             { name: 'Leadership Transition', value: Math.round((leadership/sumTriggers)*100), color: '#3b82f6' }, // Blue
@@ -168,126 +252,6 @@ export function Analytics() {
           setInsightTypes([]);
         }
 
-        // ─── 4. Briefing Prep Coverage Trend (Bar Chart) ──────────────────────
-        // Helper to parse date string to Date
-        const parseMeetingDateLocal = (dateStr: string, createdAtFallback?: string): Date | null => {
-          if (!dateStr) return null;
-          const cleanStr = dateStr.trim().toLowerCase();
-          const today = new Date();
-
-          if (cleanStr === 'today') return today;
-          if (cleanStr === 'tomorrow') {
-            const tomorrow = new Date();
-            tomorrow.setDate(today.getDate() + 1);
-            return tomorrow;
-          }
-          if (cleanStr === 'day after tomorrow') {
-            const dayAfter = new Date();
-            dayAfter.setDate(today.getDate() + 2);
-            return dayAfter;
-          }
-
-          const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-          const dayIndex = weekdays.indexOf(cleanStr);
-          if (dayIndex !== -1) {
-            const currentDay = today.getDay();
-            const diff = dayIndex - currentDay;
-            const targetDate = new Date(today);
-            targetDate.setDate(today.getDate() + diff);
-            return targetDate;
-          }
-
-          let parsed = new Date(dateStr);
-          if (!isNaN(parsed.getTime())) return parsed;
-          
-          if (createdAtFallback) {
-            parsed = new Date(createdAtFallback);
-            if (!isNaN(parsed.getTime())) return parsed;
-          }
-
-          return null;
-        };
-
-        const todayDate = new Date();
-        const startOfCurrentWeek = new Date(todayDate);
-        const day = todayDate.getDay();
-        const diff = todayDate.getDate() - day + (day === 0 ? -6 : 1);
-        startOfCurrentWeek.setDate(diff);
-        startOfCurrentWeek.setHours(0,0,0,0);
-
-        const w1Start = new Date(startOfCurrentWeek);
-        const w1End = new Date(startOfCurrentWeek);
-        w1End.setDate(w1Start.getDate() + 6);
-        w1End.setHours(23,59,59,999);
-
-        const w2Start = new Date(startOfCurrentWeek);
-        w2Start.setDate(startOfCurrentWeek.getDate() + 7);
-        const w2End = new Date(w2Start);
-        w2End.setDate(w2Start.getDate() + 6);
-        w2End.setHours(23,59,59,999);
-
-        const w3Start = new Date(startOfCurrentWeek);
-        w3Start.setDate(startOfCurrentWeek.getDate() + 14);
-        const w3End = new Date(w3Start);
-        w3End.setDate(w3Start.getDate() + 6);
-        w3End.setHours(23,59,59,999);
-
-        let w1Scheduled = 0, w1Briefs = 0;
-        let w2Scheduled = 0, w2Briefs = 0;
-        let w3Scheduled = 0, w3Briefs = 0;
-
-        meetings.forEach((m: any) => {
-          const mDate = parseMeetingDateLocal(m.date, m.created_at);
-          if (!mDate) return;
-
-          const time = mDate.getTime();
-          const hasBrief = briefs.some((b: any) => {
-            const compMatch = m.company && b.company && b.company.trim().toLowerCase() === m.company.trim().toLowerCase();
-            const bPerson = (b.person_name || '').trim().toLowerCase();
-            const mPerson = (m.contactName || '').trim().toLowerCase();
-            return compMatch && bPerson === mPerson;
-          });
-
-          if (time >= w1Start.getTime() && time <= w1End.getTime()) {
-            w1Scheduled++;
-            if (hasBrief) w1Briefs++;
-          } else if (time >= w2Start.getTime() && time <= w2End.getTime()) {
-            w2Scheduled++;
-            if (hasBrief) w2Briefs++;
-          } else if (time >= w3Start.getTime() && time <= w3End.getTime()) {
-            w3Scheduled++;
-            if (hasBrief) w3Briefs++;
-          }
-        });
-
-        if (w1Scheduled === 0 && w2Scheduled === 0 && w3Scheduled === 0 && meetings.length > 0) {
-          meetings.forEach((m: any, idx: number) => {
-            const hasBrief = briefs.some((b: any) => {
-              const compMatch = m.company && b.company && b.company.trim().toLowerCase() === m.company.trim().toLowerCase();
-              const bPerson = (b.person_name || '').trim().toLowerCase();
-              const mPerson = (m.contactName || '').trim().toLowerCase();
-              return compMatch && bPerson === mPerson;
-            });
-            if (idx % 3 === 0) {
-              w1Scheduled++;
-              if (hasBrief) w1Briefs++;
-            } else if (idx % 3 === 1) {
-              w2Scheduled++;
-              if (hasBrief) w2Briefs++;
-            } else {
-              w3Scheduled++;
-              if (hasBrief) w3Briefs++;
-            }
-          });
-        }
-
-        const adoptionData = [
-          { week: 'Week 1', Scheduled: w1Scheduled, Briefs: w1Briefs },
-          { week: 'Week 2', Scheduled: w2Scheduled, Briefs: w2Briefs },
-          { week: 'Week 3', Scheduled: w3Scheduled, Briefs: w3Briefs },
-        ];
-        setAdoptionTrend(adoptionData);
-
         // ─── 5. Dynamic Surfaced Pain Points Extraction ─────────────────────────
         const painKeywords: Record<string, number> = {};
         briefs.forEach(b => {
@@ -296,10 +260,11 @@ export function Analytics() {
           const arr = Array.isArray(pps) ? pps : [pps];
           arr.forEach((p: string) => {
             if (!p) return;
-            // Extract key concepts from string
-            const clean = p.replace(/[.,]/g, '').trim();
-            if (clean.length > 5 && clean.length < 40) {
-              painKeywords[clean] = (painKeywords[clean] || 0) + 1;
+            // Clean quotes, bullets, leading/trailing whitespace
+            const clean = p.replace(/^["'•\-\s]+|["'\s]+$/g, '').trim();
+            if (clean.length > 5 && clean.length < 150) {
+              const display = clean.length > 40 ? clean.substring(0, 37) + '...' : clean;
+              painKeywords[display] = (painKeywords[display] || 0) + 1;
             }
           });
         });
