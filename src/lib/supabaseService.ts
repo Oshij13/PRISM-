@@ -334,6 +334,38 @@ export const supabaseService = {
             }
           }
 
+          // Fallback sibling profile check: if profile is still empty, search for another profile row with the same email that has onboarding data
+          if ((!mapped.jobTitle || !mapped.company) && mapped.email) {
+            try {
+              const { data: siblingProfiles, error: siblingErr } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("email", mapped.email)
+                .neq("id", data.user.id);
+              
+              if (!siblingErr && siblingProfiles && siblingProfiles.length > 0) {
+                const completedProfile = siblingProfiles.find(
+                  (p: any) => p.job_title && p.company
+                );
+                if (completedProfile) {
+                  console.log(
+                    "[SupabaseService] Found completed sibling profile for same email. Syncing to current user ID:",
+                    data.user.id
+                  );
+                  const siblingMapped = mapProfileData(completedProfile);
+                  const merged = { ...mapped, ...siblingMapped };
+                  await this.updateProfile(merged);
+                  mapped = merged;
+                }
+              }
+            } catch (e) {
+              console.error(
+                "[SupabaseService] Failed to check or sync completed sibling profile:",
+                e
+              );
+            }
+          }
+
           localStorage.setItem("prism_user", JSON.stringify(mapped));
           if (dbProfile.avatar_url) {
             localStorage.setItem("prism_avatar", dbProfile.avatar_url);
@@ -346,7 +378,7 @@ export const supabaseService = {
             profileErr,
           );
           // If no profile row yet, return a placeholder but DO NOT upsert it to database immediately to avoid overwriting existing data
-          const placeholder: UserProfile = {
+          let placeholder: UserProfile = {
             fullName: data.user.user_metadata?.fullName || "PRISM User",
             email: data.user.email || email,
             jobTitle: "",
@@ -376,6 +408,37 @@ export const supabaseService = {
               console.error(
                 "[SupabaseService] Failed to parse local user during sync:",
                 e,
+              );
+            }
+          }
+
+          // Fallback sibling profile check (when no profile row exists for this user ID)
+          if (placeholder.email) {
+            try {
+              const { data: siblingProfiles, error: siblingErr } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("email", placeholder.email);
+              
+              if (!siblingErr && siblingProfiles && siblingProfiles.length > 0) {
+                const completedProfile = siblingProfiles.find(
+                  (p: any) => p.job_title && p.company
+                );
+                if (completedProfile) {
+                  console.log(
+                    "[SupabaseService] Found completed sibling profile for same email (no profile existed). Syncing...",
+                    completedProfile
+                  );
+                  const siblingMapped = mapProfileData(completedProfile);
+                  const merged = { ...placeholder, ...siblingMapped };
+                  await this.updateProfile(merged);
+                  placeholder = merged;
+                }
+              }
+            } catch (e) {
+              console.error(
+                "[SupabaseService] Failed to check or sync completed sibling profile (no db profile existed):",
+                e
               );
             }
           }
@@ -473,6 +536,49 @@ export const supabaseService = {
           "[SupabaseService] Error loading profile from Supabase:",
           error,
         );
+
+        // Fallback sibling profile check: if profile record doesn't exist for this ID, check if sibling profile exists
+        if (user.email) {
+          try {
+            const { data: siblingProfiles, error: siblingErr } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("email", user.email);
+            
+            if (!siblingErr && siblingProfiles && siblingProfiles.length > 0) {
+              const completedProfile = siblingProfiles.find(
+                (p: any) => p.job_title && p.company
+              );
+              if (completedProfile) {
+                console.log(
+                  "[SupabaseService] Found sibling profile with onboarding data in getProfile. Syncing...",
+                  completedProfile
+                );
+                const siblingMapped = mapProfileData(completedProfile);
+                const placeholder: UserProfile = {
+                  fullName: user.user_metadata?.fullName || "PRISM User",
+                  email: user.email,
+                  jobTitle: "",
+                  company: "",
+                  city: "",
+                  age: "",
+                  meetingsWeek: "",
+                  meetings: [],
+                };
+                const merged = { ...placeholder, ...siblingMapped };
+                await this.updateProfile(merged);
+                localStorage.setItem("prism_user", JSON.stringify(merged));
+                return merged;
+              }
+            }
+          } catch (e) {
+            console.error(
+              "[SupabaseService] Failed to check or sync sibling profile in getProfile (no dbProfile existed):",
+              e
+            );
+          }
+        }
+
         const cached = localStorage.getItem("prism_user");
         if (cached) {
           try {
@@ -489,7 +595,39 @@ export const supabaseService = {
         return null;
       }
 
-      const mapped = mapProfileData(dbProfile);
+      let mapped = mapProfileData(dbProfile);
+
+      // Fallback sibling profile check: if profile is empty, search for sibling profile with onboarding data
+      if ((!mapped.jobTitle || !mapped.company) && mapped.email) {
+        try {
+          const { data: siblingProfiles, error: siblingErr } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("email", mapped.email)
+            .neq("id", user.id);
+          
+          if (!siblingErr && siblingProfiles && siblingProfiles.length > 0) {
+            const completedProfile = siblingProfiles.find(
+              (p: any) => p.job_title && p.company
+            );
+            if (completedProfile) {
+              console.log(
+                "[SupabaseService] Sibling profile found with onboarding data in getProfile. Syncing...",
+                completedProfile
+              );
+              const siblingMapped = mapProfileData(completedProfile);
+              const merged = { ...mapped, ...siblingMapped };
+              await this.updateProfile(merged);
+              mapped = merged;
+            }
+          }
+        } catch (e) {
+          console.error(
+            "[SupabaseService] Failed to check or sync sibling profile in getProfile:",
+            e
+          );
+        }
+      }
       if (mapped.meetings && Array.isArray(mapped.meetings)) {
         mapped.meetings = mapped.meetings.map(m => ({
           ...m,
