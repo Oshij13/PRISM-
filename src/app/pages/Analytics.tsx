@@ -41,10 +41,9 @@ export function Analytics() {
     async function loadData() {
       setLoading(true);
       try {
-        const [rawBriefs, rawMeetings, unfilteredBriefs] = await Promise.all([
+        const [rawBriefs, rawMeetings] = await Promise.all([
           supabaseService.getAllMeetingBriefs(),
-          supabaseService.getMeetings(),
-          supabaseService.getUnfilteredBriefs()
+          supabaseService.getMeetings()
         ]);
 
         const briefs = rawBriefs.map(b => mapDbBriefToMeetingDetails(b));
@@ -66,9 +65,9 @@ export function Analytics() {
         ].filter(Boolean));
         const activeCompaniesCount = uniqueCompanies.size;
 
-        // Research Sources Count (Across all briefs unfiltered in the database)
+        // Research Sources Count (Across all briefs matching user's meetings)
         let totalSources = 0;
-        unfilteredBriefs.forEach(rb => {
+        rawBriefs.forEach(rb => {
           let sourcesList: any[] = [];
           if (rb.sources) {
             if (typeof rb.sources === 'string') {
@@ -81,8 +80,8 @@ export function Analytics() {
           }
           totalSources += sourcesList.length;
         });
-        if (totalSources === 0 && unfilteredBriefs.length > 0) {
-          totalSources = unfilteredBriefs.length * 4;
+        if (totalSources === 0 && totalBriefs > 0) {
+          totalSources = totalBriefs * 4;
         }
 
         setKpis([
