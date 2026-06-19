@@ -1229,7 +1229,7 @@ export const supabaseService = {
   ): Promise<{ success: boolean; error?: string }> {
     const webhookUrl =
       import.meta.env.VITE_N8N_WEBHOOK_URL ||
-      "http://localhost:5678/webhook/generate-brief";
+      "http://localhost:5678/webhook/prism-brief";
     console.log(
       "[SupabaseService] triggering n8n webhook for:",
       companyName,
