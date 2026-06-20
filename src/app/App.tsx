@@ -23,6 +23,10 @@ import { SupportPage } from './pages/SupportPage';
 function AppContent() {
   const location = useLocation();
 
+  // Hide dashboard TopBar on Landing, Sign In, Sign Up, and Onboarding routes
+  const hideTopBarPaths = ['/', '/signin', '/signup', '/onboarding', '/about', '/contact', '/privacy', '/terms', '/features', '/pricing', '/security', '/support'];
+  const showTopBar = !hideTopBarPaths.includes(location.pathname);
+
   useEffect(() => {
     // Reset scroll positions of both the scrollable <main> container and the window on page changes
     const mainElement = document.querySelector('main');
@@ -32,9 +36,19 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Hide dashboard TopBar on Landing, Sign In, Sign Up, and Onboarding routes
-  const hideTopBarPaths = ['/', '/signin', '/signup', '/onboarding', '/about', '/contact', '/privacy', '/terms', '/features', '/pricing', '/security', '/support'];
-  const showTopBar = !hideTopBarPaths.includes(location.pathname);
+  useEffect(() => {
+    // Dynamically manage the global dark mode class on document element.
+    // Public landing pages are strictly light-themed, so we disable dark mode class on them.
+    // Internal pages restore the user's stored preference (defaulting to dark mode).
+    const isPublicPath = hideTopBarPaths.includes(location.pathname);
+    if (isPublicPath) {
+      document.documentElement.classList.remove('dark');
+    } else {
+      const savedTheme = localStorage.getItem('theme');
+      const shouldBeDark = savedTheme !== 'light';
+      document.documentElement.classList.toggle('dark', shouldBeDark);
+    }
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
