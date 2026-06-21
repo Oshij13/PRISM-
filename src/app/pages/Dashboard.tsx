@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Clock, Users, ChevronRight, Calendar, AlertCircle, Plus, Trash2, X } from 'lucide-react';
+import { Sparkles, Clock, Users, ChevronRight, Calendar, AlertCircle, Plus, Trash2, X, Pencil } from 'lucide-react';
 import { Link } from 'react-router';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DashboardCalendar } from '../components/DashboardCalendar';
@@ -118,6 +118,121 @@ export function Dashboard() {
   const [newMeetingGoal, setNewMeetingGoal] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalError, setModalError] = useState('');
+
+  // Edit Meeting form state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
+  const [editCompany, setEditCompany] = useState('');
+  const [editContactName, setEditContactName] = useState('');
+  const [editContactRole, setEditContactRole] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTime, setEditTime] = useState('10:00 AM');
+  const [editPriority, setEditPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [editMeetingType, setEditMeetingType] = useState('');
+  const [editMeetingGoal, setEditMeetingGoal] = useState('');
+  const [isEditingSubmitting, setIsEditingSubmitting] = useState(false);
+  const [editModalError, setEditModalError] = useState('');
+
+  const [isHeaderEdit, setIsHeaderEdit] = useState(false);
+
+  const handleEditMeetingClick = (m: any, headerEdit = false) => {
+    const raw = rawMeetings.find((rm: any) => rm.id === m.id) || m;
+    setEditingMeetingId(m.id);
+    setEditCompany(raw.company || '');
+    setEditContactName(raw.contactName || '');
+    setEditContactRole(raw.contactRole || '');
+    setEditDate(raw.date || '');
+    setEditTime(raw.time || '10:00 AM');
+    setEditPriority(raw.priority || 'medium');
+    setEditMeetingType(raw.meetingType || '');
+    setEditMeetingGoal(raw.meetingGoal || '');
+    setEditModalError('');
+    setIsHeaderEdit(headerEdit);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSelectMeetingToEdit = (meetingId: string) => {
+    if (!meetingId) {
+      setEditingMeetingId(null);
+      setEditCompany('');
+      setEditContactName('');
+      setEditContactRole('');
+      setEditDate('');
+      setEditTime('10:00 AM');
+      setEditPriority('medium');
+      setEditMeetingType('');
+      setEditMeetingGoal('');
+      return;
+    }
+    const raw = rawMeetings.find((rm: any) => rm.id === meetingId);
+    if (raw) {
+      setEditingMeetingId(meetingId);
+      setEditCompany(raw.company || '');
+      setEditContactName(raw.contactName || '');
+      setEditContactRole(raw.contactRole || '');
+      setEditDate(raw.date || '');
+      setEditTime(raw.time || '10:00 AM');
+      setEditPriority(raw.priority || 'medium');
+      setEditMeetingType(raw.meetingType || '');
+      setEditMeetingGoal(raw.meetingGoal || '');
+    }
+  };
+
+  const handleHeaderEditClick = () => {
+    setIsHeaderEdit(true);
+    if (rawMeetings.length > 0) {
+      handleEditMeetingClick(rawMeetings[0], true);
+    } else {
+      setEditingMeetingId(null);
+      setEditCompany('');
+      setEditContactName('');
+      setEditContactRole('');
+      setEditDate('');
+      setEditTime('10:00 AM');
+      setEditPriority('medium');
+      setEditMeetingType('');
+      setEditMeetingGoal('');
+      setEditModalError('');
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleEditMeetingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditModalError('');
+    if (!editCompany.trim() || !editContactName.trim() || !editContactRole.trim() || !editMeetingType.trim() || !editMeetingGoal.trim()) {
+      setEditModalError('Please fill in all required fields.');
+      return;
+    }
+
+    if (!editingMeetingId) return;
+
+    setIsEditingSubmitting(true);
+    try {
+      const res = await supabaseService.updateMeeting(editingMeetingId, {
+        company: editCompany.trim(),
+        contactName: editContactName.trim(),
+        contactRole: editContactRole.trim(),
+        date: editDate.trim() || 'Tomorrow',
+        time: editTime,
+        priority: editPriority,
+        meetingType: editMeetingType.trim(),
+        meetingGoal: editMeetingGoal.trim()
+      });
+
+      setIsEditingSubmitting(false);
+      if (res.success) {
+        setIsEditModalOpen(false);
+        setEditingMeetingId(null);
+        await fetchDashboardData();
+      } else {
+        setEditModalError(res.error || 'Failed to update meeting.');
+      }
+    } catch (err: any) {
+      setIsEditingSubmitting(false);
+      setEditModalError(err.message || 'An error occurred.');
+    }
+  };
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
@@ -417,13 +532,22 @@ export function Dashboard() {
               }
             })()}
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all text-xs font-bold self-start md:self-auto cursor-pointer shadow-sm active:scale-95"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Meeting</span>
-          </button>
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <button
+              onClick={handleHeaderEditClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-foreground border border-border/60 hover:border-border rounded-lg transition-all text-xs font-bold cursor-pointer shadow-sm active:scale-95"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              <span>Edit Meeting</span>
+            </button>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all text-xs font-bold cursor-pointer shadow-sm active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Meeting</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -619,6 +743,14 @@ export function Dashboard() {
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                   <button
+                    onClick={() => handleEditMeetingClick(meeting)}
+                    type="button"
+                    className="flex items-center justify-center p-2 text-muted-foreground hover:text-foreground border border-border hover:border-border/80 rounded-lg hover:bg-secondary/80 transition-colors cursor-pointer"
+                    title="Edit meeting"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
                     onClick={() => handleDeleteMeeting(meeting.id)}
                     type="button"
                     className="flex items-center justify-center p-2 text-muted-foreground hover:text-destructive border border-border hover:border-destructive/30 rounded-lg hover:bg-destructive/10 transition-colors cursor-pointer"
@@ -791,6 +923,185 @@ export function Dashboard() {
                   className="px-5 py-2 bg-primary hover:bg-primary/95 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors active:scale-98 cursor-pointer disabled:opacity-75"
                 >
                   <span>{isSubmitting ? 'Saving...' : 'Save Meeting'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Meeting Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-opacity">
+          <div className="bg-card text-foreground rounded-2xl border border-border p-6 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-base font-bold mb-1">Edit Meeting Details</h3>
+            <p className="text-xs text-muted-foreground mb-4">Modify coordinates for this meeting brief</p>
+
+            {editModalError && (
+              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-650 font-semibold">
+                {editModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleEditMeetingSubmit} className="space-y-4">
+              {isHeaderEdit && rawMeetings.length > 0 && (
+                <div className="bg-secondary/35 p-3 rounded-lg border border-border/50">
+                  <label htmlFor="selectMeetingToEdit" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Select Meeting to Edit</label>
+                  <select
+                    id="selectMeetingToEdit"
+                    value={editingMeetingId || ''}
+                    onChange={(e) => handleSelectMeetingToEdit(e.target.value)}
+                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all cursor-pointer"
+                  >
+                    <option value="" disabled>-- Select a meeting --</option>
+                    {rawMeetings.map((m: any) => (
+                      <option key={m.id} value={m.id}>
+                        {m.company} — {m.meetingType || m.contactRole || 'Intro'} Call
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label htmlFor="editCompany" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Company *</label>
+                  <input
+                    id="editCompany"
+                    type="text"
+                    required
+                    placeholder="e.g. Nykaa"
+                    value={editCompany}
+                    onChange={(e) => setEditCompany(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="editContactName" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Contact Name *</label>
+                  <input
+                    id="editContactName"
+                    type="text"
+                    required
+                    placeholder="e.g. John Doe"
+                    value={editContactName}
+                    onChange={(e) => setEditContactName(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="editContactRole" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Contact Role *</label>
+                  <input
+                    id="editContactRole"
+                    type="text"
+                    required
+                    placeholder="e.g. CTO"
+                    value={editContactRole}
+                    onChange={(e) => setEditContactRole(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="editMeetingType" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Meeting Title / Type *</label>
+                  <input
+                    id="editMeetingType"
+                    type="text"
+                    required
+                    placeholder="e.g. Q2 Strategy Alignment"
+                    value={editMeetingType}
+                    onChange={(e) => setEditMeetingType(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="editMeetingGoal" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Meeting Goal *</label>
+                  <input
+                    id="editMeetingGoal"
+                    type="text"
+                    required
+                    placeholder="e.g. Propose pilot, secure commitment"
+                    value={editMeetingGoal}
+                    onChange={(e) => setEditMeetingGoal(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="editDate" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Date *</label>
+                  <input
+                    id="editDate"
+                    type="text"
+                    required
+                    placeholder="e.g. Tomorrow or May 24, 2026"
+                    value={editDate}
+                    onChange={(e) => setEditDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="editTime" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Time *</label>
+                  <select
+                    id="editTime"
+                    value={editTime}
+                    onChange={(e) => setEditTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all cursor-pointer"
+                  >
+                    {['9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM'].map((t) => (
+                      <option key={t} value={t} className="bg-card text-foreground">{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-2">Priority</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['low', 'medium', 'high'] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditPriority(p)}
+                        className={`py-1.5 px-3 rounded-lg border text-center text-xs font-bold transition-all cursor-pointer uppercase tracking-wider ${
+                          editPriority === p
+                            ? p === 'high'
+                              ? 'bg-red-500/10 border-red-500 text-red-650'
+                              : p === 'medium'
+                                ? 'bg-amber-500/10 border-amber-500 text-amber-650'
+                                : 'bg-green-500/10 border-green-500 text-green-650'
+                            : 'bg-secondary/30 border-border text-muted-foreground hover:border-border hover:text-foreground'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-border/50">
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  type="button"
+                  className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground border border-border rounded-lg text-xs font-bold transition-colors active:scale-98 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditingSubmitting}
+                  className="px-5 py-2 bg-primary hover:bg-primary/95 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors active:scale-98 cursor-pointer disabled:opacity-75"
+                >
+                  <span>{isEditingSubmitting ? 'Saving...' : 'Save Changes'}</span>
                 </button>
               </div>
             </form>

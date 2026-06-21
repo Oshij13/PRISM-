@@ -1113,6 +1113,142 @@ export const supabaseService = {
   },
 
   /**
+   * Update an existing meeting
+   */
+  async updateMeeting(
+    meetingId: string,
+    updates: Partial<Omit<UserProfile["meetings"][number], "id">>
+  ): Promise<{ success: boolean; error?: string; data?: any }> {
+    console.log("[SupabaseService] updateMeeting:", meetingId, updates);
+    
+    // Update local storage first
+    const cached = localStorage.getItem("prism_user");
+    let updatedMeeting: any = null;
+    if (cached) {
+      try {
+        const u = JSON.parse(cached);
+        u.meetings = Array.isArray(u.meetings) ? u.meetings : [];
+        const index = u.meetings.findIndex((m: any) => m.id === meetingId);
+        if (index !== -1) {
+          const oldMeeting = u.meetings[index];
+          let resolvedDate = oldMeeting.date;
+          if (updates.date !== undefined) {
+            resolvedDate = resolveMeetingDate({ id: meetingId, date: updates.date });
+          }
+          updatedMeeting = {
+            ...oldMeeting,
+            ...updates,
+            id: meetingId,
+            date: resolvedDate
+          };
+          u.meetings[index] = updatedMeeting;
+          localStorage.setItem("prism_user", JSON.stringify(u));
+          window.dispatchEvent(new Event("prism_profile_update"));
+        }
+      } catch (e) {
+        console.error("[SupabaseService] Failed to update local storage meeting:", e);
+      }
+    }
+
+    if (!isSupabaseConfigured()) {
+      return { success: true, data: updatedMeeting };
+    }
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: "No active authenticated session." };
+      }
+
+      // Try updating in meetings table
+      const dbRow: any = {};
+      if (updates.company !== undefined) dbRow.company = updates.company;
+      if (updates.contactName !== undefined) dbRow.contact_name = updates.contactName;
+      if (updates.contactRole !== undefined) dbRow.contact_role = updates.contactRole;
+      if (updates.date !== undefined) dbRow.date = resolveMeetingDate({ id: meetingId, date: updates.date });
+      if (updates.time !== undefined) dbRow.time = updates.time;
+      if (updates.priority !== undefined) dbRow.priority = updates.priority;
+      if (updates.meetingType !== undefined) dbRow.meeting_type = updates.meetingType;
+      if (updates.meetingGoal !== undefined) dbRow.meeting_goal = updates.meetingGoal;
+
+      const { data, error } = await supabase
+        .from("meetings")
+        .update(dbRow)
+        .eq("id", meetingId)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        const returnedMeeting = {
+          id: data.id,
+          company: data.company,
+          contactName: data.contact_name || "",
+          contactRole: data.contact_role || "",
+          date: data.date,
+          time: data.time,
+          priority: data.priority,
+          meetingType: data.meeting_type || "",
+          meetingGoal: data.meeting_goal || "",
+        };
+
+        // Sync returnedMeeting back to local storage
+        const cachedRaw = localStorage.getItem("prism_user");
+        if (cachedRaw) {
+          try {
+            const u = JSON.parse(cachedRaw);
+            u.meetings = u.meetings.map((m: any) =>
+              m.id === meetingId ? returnedMeeting : m
+            );
+            localStorage.setItem("prism_user", JSON.stringify(u));
+            window.dispatchEvent(new Event("prism_profile_update"));
+          } catch (e) {}
+        }
+        return { success: true, data: returnedMeeting };
+      }
+
+      console.warn(
+        "[SupabaseService] Falling back to profiles.meetings for updateMeeting:",
+        error?.message
+      );
+
+      const profile = await this.getProfile();
+      if (profile) {
+        const meetingsList = profile.meetings || [];
+        const index = meetingsList.findIndex((m: any) => m.id === meetingId);
+        if (index !== -1) {
+          const oldMeeting = meetingsList[index];
+          let resolvedDate = oldMeeting.date;
+          if (updates.date !== undefined) {
+            resolvedDate = resolveMeetingDate({ id: meetingId, date: updates.date });
+          }
+          meetingsList[index] = {
+            ...oldMeeting,
+            ...updates,
+            id: meetingId,
+            date: resolvedDate
+          };
+          await this.updateMeetings(meetingsList);
+          return { success: true, data: meetingsList[index] };
+        }
+      }
+
+      return {
+        success: false,
+        error: "Could not find meeting to update or fetch profile."
+      };
+    } catch (err: any) {
+      console.error("[SupabaseService] updateMeeting exception:", err);
+      return {
+        success: false,
+        error: err.message || "Failed to update meeting."
+      };
+    }
+  },
+
+  /**
    * Save onboarding meetings to 'meetings' table
    */
   async saveOnboardingMeetings(

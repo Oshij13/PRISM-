@@ -24,6 +24,8 @@ import {
   ChevronRight,
   RefreshCw,
   ExternalLink,
+  Pencil,
+  X,
 } from 'lucide-react';
 import { getMeetingDetails, mapDbBriefToMeetingDetails, parseSignalItem } from '../data/meetingsDb';
 import { supabaseService } from '../../lib/supabaseService';
@@ -598,6 +600,101 @@ export function MeetingIntelligence() {
 
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // Edit Meeting form states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editCompany, setEditCompany] = useState('');
+  const [editContactName, setEditContactName] = useState('');
+  const [editContactRole, setEditContactRole] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTime, setEditTime] = useState('10:00 AM');
+  const [editPriority, setEditPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [editMeetingType, setEditMeetingType] = useState('');
+  const [editMeetingGoal, setEditMeetingGoal] = useState('');
+  const [isEditingSubmitting, setIsEditingSubmitting] = useState(false);
+  const [editModalError, setEditModalError] = useState('');
+
+  const handleEditClick = () => {
+    if (!meeting) return;
+    setEditCompany(meeting.company || '');
+    setEditContactName(meeting.contactName || meeting.attendees?.[0]?.name || '');
+    setEditContactRole(meeting.contactRole || meeting.attendees?.[0]?.role || '');
+    setEditDate(meeting.date || '');
+    setEditTime(meeting.time || '10:00 AM');
+    setEditPriority(meeting.priority || 'medium');
+    setEditMeetingType(meeting.meetingType || meeting.title || '');
+    setEditMeetingGoal(meeting.meetingGoal || meeting.meetingType || meeting.title || '');
+    setEditModalError('');
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditModalError('');
+    if (!editCompany.trim() || !editContactName.trim() || !editContactRole.trim() || !editMeetingType.trim() || !editMeetingGoal.trim()) {
+      setEditModalError('Please fill in all required fields.');
+      return;
+    }
+
+    if (!meeting || !meeting.id) return;
+
+    setIsEditingSubmitting(true);
+    try {
+      const res = await supabaseService.updateMeeting(meeting.id, {
+        company: editCompany.trim(),
+        contactName: editContactName.trim(),
+        contactRole: editContactRole.trim(),
+        date: editDate.trim() || 'Tomorrow',
+        time: editTime,
+        priority: editPriority,
+        meetingType: editMeetingType.trim(),
+        meetingGoal: editMeetingGoal.trim()
+      });
+
+      setIsEditingSubmitting(false);
+      if (res.success) {
+        setIsEditModalOpen(false);
+        // Refresh meeting state locally so UI updates instantly
+        setMeeting((prev: any) => {
+          const updated = {
+            ...prev,
+            company: editCompany.trim(),
+            contactName: editContactName.trim(),
+            contactRole: editContactRole.trim(),
+            date: editDate.trim() || 'Tomorrow',
+            time: editTime,
+            priority: editPriority,
+            meetingType: editMeetingType.trim(),
+            meetingGoal: editMeetingGoal.trim()
+          };
+          if (updated.attendees && updated.attendees.length > 0) {
+            updated.attendees[0] = {
+              ...updated.attendees[0],
+              name: editContactName.trim(),
+              role: editContactRole.trim()
+            };
+          }
+          if (updated.rawDocument) {
+            updated.rawDocument = {
+              ...updated.rawDocument,
+              company: editCompany.trim(),
+              person_name: editContactName.trim(),
+              role_title: editContactRole.trim(),
+              meeting_type: editMeetingType.trim(),
+              meeting_goal: editMeetingGoal.trim(),
+              priority: editPriority
+            };
+          }
+          return updated;
+        });
+      } else {
+        setEditModalError(res.error || 'Failed to update meeting.');
+      }
+    } catch (err: any) {
+      setIsEditingSubmitting(false);
+      setEditModalError(err.message || 'An error occurred.');
+    }
+  };
+
   const handleDownloadPdf = async () => {
     const element = document.getElementById('dossier-pdf-content');
     if (!element) return;
@@ -1034,17 +1131,26 @@ export function MeetingIntelligence() {
               {meeting.status}
             </span>
 
-            {!isAwaiting && (
-              <button
-                onClick={() => runN8nResearch(meeting)}
-                disabled={triggeringN8n}
-                title="Refresh Research Brief"
-                className="p-1.5 rounded-lg border border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-primary transition-all disabled:opacity-50"
-              >
-                <RefreshCw className={`w-4 h-4 ${triggeringN8n ? 'animate-spin' : ''}`} />
-              </button>
-            )}
+          {!isAwaiting && (
+            <button
+              onClick={() => runN8nResearch(meeting)}
+              disabled={triggeringN8n}
+              title="Refresh Research Brief"
+              className="p-1.5 rounded-lg border border-transparent text-muted-foreground hover:border-border hover:bg-secondary hover:text-primary transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${triggeringN8n ? 'animate-spin' : ''}`} />
+            </button>
+          )}
           </div>
+
+          <button
+            onClick={handleEditClick}
+            title="Edit Meeting Details"
+            className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all cursor-pointer"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            <span>Edit Details</span>
+          </button>
 
           {!isAwaiting && (
             <button
@@ -1369,8 +1475,168 @@ export function MeetingIntelligence() {
 
           {/* News Panel */}
           <NewsPanel news={meeting.news || []} />
+      </div>
+    </div>
+
+    {/* Edit Meeting Modal */}
+    {isEditModalOpen && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-opacity print:hidden">
+        <div className="bg-card text-foreground rounded-2xl border border-border p-6 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <button
+            onClick={() => setIsEditModalOpen(false)}
+            className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <h3 className="text-base font-bold mb-1">Edit Meeting Details</h3>
+          <p className="text-xs text-muted-foreground mb-4">Modify coordinates for this meeting brief</p>
+
+          {editModalError && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-650 font-semibold">
+              {editModalError}
+            </div>
+          )}
+
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label htmlFor="editCompany" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Company *</label>
+                <input
+                  id="editCompany"
+                  type="text"
+                  required
+                  placeholder="e.g. Nykaa"
+                  value={editCompany}
+                  onChange={(e) => setEditCompany(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="editContactName" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Contact Name *</label>
+                <input
+                  id="editContactName"
+                  type="text"
+                  required
+                  placeholder="e.g. John Doe"
+                  value={editContactName}
+                  onChange={(e) => setEditContactName(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="editContactRole" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Contact Role *</label>
+                <input
+                  id="editContactRole"
+                  type="text"
+                  required
+                  placeholder="e.g. CTO"
+                  value={editContactRole}
+                  onChange={(e) => setEditContactRole(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label htmlFor="editMeetingType" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Meeting Title / Type *</label>
+                <input
+                  id="editMeetingType"
+                  type="text"
+                  required
+                  placeholder="e.g. Q2 Strategy Alignment"
+                  value={editMeetingType}
+                  onChange={(e) => setEditMeetingType(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label htmlFor="editMeetingGoal" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Meeting Goal *</label>
+                <input
+                  id="editMeetingGoal"
+                  type="text"
+                  required
+                  placeholder="e.g. Propose pilot, secure commitment"
+                  value={editMeetingGoal}
+                  onChange={(e) => setEditMeetingGoal(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="editDate" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Date *</label>
+                <input
+                  id="editDate"
+                  type="text"
+                  required
+                  placeholder="e.g. Tomorrow or May 24, 2026"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="editTime" className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-1">Time *</label>
+                <select
+                  id="editTime"
+                  value={editTime}
+                  onChange={(e) => setEditTime(e.target.value)}
+                  className="w-full px-3 py-2 bg-secondary/35 border border-border rounded-lg text-xs font-semibold text-foreground focus:bg-card focus:border-primary outline-none transition-all cursor-pointer"
+                >
+                  {['9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM'].map((t) => (
+                    <option key={t} value={t} className="bg-card text-foreground">{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-[10px] font-extrabold text-muted-foreground uppercase block mb-2">Priority</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['low', 'medium', 'high'] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setEditPriority(p)}
+                      className={`py-1.5 px-3 rounded-lg border text-center text-xs font-bold transition-all cursor-pointer uppercase tracking-wider ${
+                        editPriority === p
+                          ? p === 'high'
+                            ? 'bg-red-500/10 border-red-500 text-red-650'
+                            : p === 'medium'
+                              ? 'bg-amber-500/10 border-amber-500 text-amber-650'
+                              : 'bg-green-500/10 border-green-500 text-green-650'
+                          : 'bg-secondary/30 border-border text-muted-foreground hover:border-border hover:text-foreground'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-border/50">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                type="button"
+                className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-foreground border border-border rounded-lg text-xs font-bold transition-colors active:scale-98 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isEditingSubmitting}
+                className="px-5 py-2 bg-primary hover:bg-primary/95 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors active:scale-98 cursor-pointer disabled:opacity-75"
+              >
+                <span>{isEditingSubmitting ? 'Saving...' : 'Save Changes'}</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+    )}
     </div>
   </div>
 );
